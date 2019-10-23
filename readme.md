@@ -19,8 +19,9 @@ INFEST for k**IN**ematic o**F** l**ES**ion developmen**T**. This plugin was used
 - `start` (optional, default 0) an integer corresponding to the first image to consider.
 - `stop` (optional, default max(image_name)) an integer corresponding to the last image to consider.
 
->** output** `analyse.txt` file created in the  `path_containing_images` directory containing 3 columns: the **Id** of leaf, the **time** extracted from pictures name and the size of the **Lesion**
- 
+**output**
+> `analyse.txt` file created in the  `path_containing_images` directory containing 3 columns: the **Id** of leaf, the **time** extracted from pictures name and the size of the **Lesion**
+
 ### Examples
 `infest.py /home/foo/bar/ 0 250`
 
