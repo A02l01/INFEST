@@ -6,7 +6,7 @@ For academics used please cite :
 
 Barbacci, A., Navaud, O., Mbengue, M., Vincent, R., Barascud, M., Aline, L., Raffaele, S., n.d. **Rapid identification of an Arabidopsis NLR gene conferring susceptibility to Sclerotinia sclerotiorum using real-time automated phenotyping**. Rev.
 
-![Kinematic of lesion development for the leaf 'Col-0_154'](./d/inf.gif)
+![Kinematic of lesion development for the leaf 'Col-0_154'](../d/d/blob/master/d/inf.gif)
 
 
 ### command line :
@@ -39,6 +39,8 @@ Having python and conda install on your machine.
 - For linux install please see: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
 - For other systems: https://docs.conda.io/projects/conda/en/latest/user-guide/install/#system-requirements
 ## Installation instructions
+- Download the python sources:
+- wget
 Creation of a conda environment
 
 _conda env create _n INFEST -f env_Infest.yml_
@@ -49,7 +51,18 @@ _python infest.py path_to_picture _
 
 
 
-# Tuto
+# Tutorial
+## creation of the layout file
+- creation of the grid_layout subdirectory in the picture directory. here creation of ./Image_tuto/pictures/grid_layout/
+- creation of the grid_layout.layout file in ./Image_tuto/pictures/grid_layout/ directory. We used ImageJ to obtain the coordinates of the bounding rectangle. We add the single line
+
+Col-0_154       1410    2574    1497    2721
+
+to ./Image_tuto/pictures/grid_layout/grid_layout.Layout
+with Col-0_154 the Id of the leaf, 1410 ymin of the rectangle, 2574 xmin of the rectangle, 1497 ymax of the rectangle, 2721 xmax of the rectangle. **Items are separeted by a tabulation**.
+
+
+
 All data are in the data_tuto/ directory
 
 ## Prerequist
