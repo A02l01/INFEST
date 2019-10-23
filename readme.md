@@ -1,10 +1,19 @@
 
+
 # INFEST
 ## Overview
 INFEST for k**IN**ematic o**F** l**ES**ion developmen**T**. This plugin was used to compute the kinematic of lesion caused by the necrotrophic fungus _Sclerotinia sclerotiorum_. INFEST was developed for QIP (quantitative immunity in plant) @ LIPM (Lab of plant microbes interaction) in Toulouse by Adelin Barbacci. Feel free to use it.
-For academics used please cite :
 
+<div class="panel panel-info">
+**For academics used please cite :**
+{: .panel-heading}
+<div class="panel-body">
 Barbacci, A., Navaud, O., Mbengue, M., Vincent, R., Barascud, M., Aline, L., Raffaele, S., n.d. **Rapid identification of an Arabidopsis NLR gene conferring susceptibility to Sclerotinia sclerotiorum using real-time automated phenotyping**. Rev.
+</div>
+</div>
+
+
+
 
 ![Kinematic of lesion development for the leaf 'Col-0_154'](https://github.com/A02l01/d/blob/master/d/inf.gif)
 
@@ -17,9 +26,9 @@ infest.py path_containing_images start stop
 - stop (optional, default max(image_name)) an integer corresponding to the last image to consider.
 
 ### Examples
-- infest.py /home/foo/bar/ 0 250
-- infest.py /home/foo/bar/ 0
-- infest.py /home/foo/bar/
+`infest.py /home/foo/bar/ 0 250`
+`infest.py /home/foo/bar/ 0`
+`infest.py /home/foo/bar/`
 
 
 ### To go further
@@ -36,14 +45,14 @@ This version has been developed and tested under ubuntu 18.10 with python 2.7. T
 
 ## Prerequists
 Having python and conda install on your machine.
-- For linux install please see: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
-- For other systems: https://docs.conda.io/projects/conda/en/latest/user-guide/install/#system-requirements
+- For linux install please see: [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
+- For other systems: [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/#system-requirements)
 ## Installation instructions
 - Download the python sources:
 - wget
 Creation of a conda environment
 
-`conda env create _n INFEST -f env_Infest.yml`
+`conda env create -n INFEST -f env_Infest.yml`
 
 `conda activate INFEST`
 
