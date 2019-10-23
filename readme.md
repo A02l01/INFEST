@@ -1,5 +1,3 @@
-{::options parse_block_html="true" /}
-
 # INFEST
 ## Overview
 INFEST for k**IN**ematic o**F** l**ES**ion developmen**T**. This plugin was used to compute the kinematic of lesion caused by the necrotrophic fungus _Sclerotinia sclerotiorum_. INFEST was developed for QIP (quantitative immunity in plant) @ LIPM (Lab of plant microbes interaction) in Toulouse by Adelin Barbacci. Feel free to use it.
@@ -48,7 +46,7 @@ Having python and conda install on your machine.
 ## Installation instructions
 - Download the python sources:
 - wget
-Creation of a conda environment
+- Creation of a conda environment
 
 `conda env create -n INFEST -f env_Infest.yml`
 
@@ -59,23 +57,29 @@ Creation of a conda environment
 
 
 # Tutorial
-In this short tutorial we will use INFEST to compute the kinematic of lesion development of a single detached leaf of Arabidopsis thaliana coined 'Col-0_154'
+In this short tutorial we will use **INFEST** to compute the kinematic of lesion development of a single detached leaf of _Arabidopsis thaliana_ coined 'Col-0_154'.
+
+All data are in the `data_tuto/` directory
+
 ![Col-0_154 leaf](https://github.com/A02l01/tuto/blob/master/data_tuto/pictures/grid_layout/panel.jpg)
 
 Other kinematics can be computed by adding bounding boxes of leaves in the `grid_layout.layout` file.
 
 ## creation of the layout file
-- creation of the grid_layout subdirectory in the picture directory. here creation of ./Image_tuto/pictures/grid_layout/
-- creation of the grid_layout.layout file in ./Image_tuto/pictures/grid_layout/ directory. We used ImageJ to obtain the coordinates of the bounding rectangle. We add the single line
+- Downloading pictures 
+- creation of the `grid_layout/` subdirectory in the picture directory. here creation of `./Image_tuto/pictures/grid_layout/`
 
-Col-0_154       1410    2574    1497    2721
+- creation of the `grid_layout.layout` file in `./Image_tuto/pictures/grid_layout/` directory. We used [ImageJ](https://imagej.nih.gov/ij/download.html) to obtain the coordinates of the bounding rectangle. We add the single line
 
-to ./Image_tuto/pictures/grid_layout/grid_layout.Layout
-with Col-0_154 the Id of the leaf, 1410 ymin of the rectangle, 2574 xmin of the rectangle, 1497 ymax of the rectangle, 2721 xmax of the rectangle. **Items are separeted by a tabulation**.
+`Col-0_154       1410    2574    1497    2721`
+
+to `./Image_tuto/pictures/grid_layout/grid_layout.Layout`
+with `Col-0_154` the **Id** of the leaf, `1410` **ymin** of the rectangle, `2574` **xmin** of the rectangle, `1497` **ymax** of the rectangle, `2721` **xmax** of the rectangle.
+>**Items are separeted by a tabulation**.
 
 
 
-All data are in the data_tuto/ directory
+
 
 ## Prerequist
 Name of images 1.jpg to N.jpg
