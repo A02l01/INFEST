@@ -21,14 +21,35 @@ infest.py path_containing_images start stop
 - infest.py /home/foo/bar/ 0
 - infest.py /home/foo/bar/
 
-Tested with ubuntu 18.10
+
 ### To go further
 To compute the growth rate associated to kinematic of lesion development we advice to use the 'segmented' R library after a log transform of the curve obtained with INFEST.
 ### Latest news
+- Version 1 available
 
-Please cite ...
 # Getting started
-# Installation instructions
+## Details
+This version has been developed and tested under ubuntu 18.10 with python 2.7. The dependancies are:
+- matplotlib==2.2.4
+- numpy==1.16.5
+- scikit-image==0.14.5
+
+## Prerequists
+Having python and conda install on your machine.
+- For linux install please see: [here][003223a6]
+- For other systems: [here][8dbdd21a]
+## Installation instructions
+Creation of a conda environment
+  [003223a6]: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html "conda linux install"
+  [8dbdd21a]: https://docs.conda.io/projects/conda/en/latest/user-guide/install/#system-requirements ""other os install""
+
+_conda env create _n INFEST -f env_Infest.yml_
+
+_conda activate INFEST_
+
+_python infest.py path_to_picture _
+
+
 
 # Tuto
 All data are in the data_tuto/ directory
