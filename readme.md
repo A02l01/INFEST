@@ -1,9 +1,12 @@
+
 # INFEST
 ## Overview
 INFEST for k**IN**ematic o**F** l**ES**ion developmen**T**. This plugin was used to compute the kinematic of lesion caused by the necrotrophic fungus _Sclerotinia sclerotiorum_. Feel free to use it.
 For academics used please cite :
 
 Barbacci, A., Navaud, O., Mbengue, M., Vincent, R., Barascud, M., Aline, L., Raffaele, S., n.d. **Rapid identification of an Arabidopsis NLR gene conferring susceptibility to Sclerotinia sclerotiorum using real-time automated phenotyping**. Rev.
+
+![Kinematic of lesion development for the leaf 'Col-0_154'](./d/inf.gif)
 
 
 ### command line :
