@@ -60,7 +60,7 @@ Col-0_154       1410    2574    1497    2721
 
 to ./Image_tuto/pictures/grid_layout/grid_layout.Layout
 with Col-0_154 the Id of the leaf, 1410 ymin of the rectangle, 2574 xmin of the rectangle, 1497 ymax of the rectangle, 2721 xmax of the rectangle. **Items are separeted by a tabulation**.
-
+![Col-0_254 leaf](https://github.com/A02l01/tuto/blob/master/data_tuto/pictures/grid_layout/panel.jpg)
 
 
 All data are in the data_tuto/ directory
