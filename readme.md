@@ -52,6 +52,11 @@ _python infest.py path_to_picture _
 
 
 # Tutorial
+In this short tutorial we will use INFEST to compute the kinematic of lesion development of a single detached leaf of Arabidopsis thaliana coined 'Col-0_254'
+![Col-0_254 leaf](https://github.com/A02l01/tuto/blob/master/data_tuto/pictures/grid_layout/panel.jpg)
+
+Other kinematics can be computed by adding bounding boxes of leaves in the grid_layout.layout file.
+
 ## creation of the layout file
 - creation of the grid_layout subdirectory in the picture directory. here creation of ./Image_tuto/pictures/grid_layout/
 - creation of the grid_layout.layout file in ./Image_tuto/pictures/grid_layout/ directory. We used ImageJ to obtain the coordinates of the bounding rectangle. We add the single line
@@ -60,7 +65,7 @@ Col-0_154       1410    2574    1497    2721
 
 to ./Image_tuto/pictures/grid_layout/grid_layout.Layout
 with Col-0_154 the Id of the leaf, 1410 ymin of the rectangle, 2574 xmin of the rectangle, 1497 ymax of the rectangle, 2721 xmax of the rectangle. **Items are separeted by a tabulation**.
-![Col-0_254 leaf](https://github.com/A02l01/tuto/blob/master/data_tuto/pictures/grid_layout/panel.jpg)
+
 
 
 All data are in the data_tuto/ directory
