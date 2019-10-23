@@ -16,4 +16,4 @@ Layout file must is composed by 'name'<tab>'ymin','xmin','ymax','xmax'
 infest.py path_containing_images start stop
 
 
-![Kinematic of lesion development for the leaf 'Col-0_154']('/home/ab/Documents/Travail/Projet_en_cours/Navautron/Source_python/final/data_tuto/results/results.jpeg')
+![Kinematic of lesion development for the leaf 'Col-0_154']('./data_tuto/results/results.jpeg')
