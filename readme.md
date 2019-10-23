@@ -12,7 +12,7 @@ Barbacci, A., Navaud, O., Mbengue, M., Vincent, R., Barascud, M., Aline, L., Raf
 </div>
 </div>
 
-
+Center-aligned{: .alert .alert-info .text-center}
 
 
 ![Kinematic of lesion development for the leaf 'Col-0_154'](https://github.com/A02l01/d/blob/master/d/inf.gif)
