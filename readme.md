@@ -1,21 +1,28 @@
 # INFEST
 ## Overview
-- command line :
+INFEST for k**IN**ematic o**F** l**ES**ion developmen**T**. This plugin was used to compute the kinematic of lesion caused by the necrotrophic fungus _Sclerotinia sclerotiorum_. 
+### command line :
 
 infest.py path_containing_images start stop
 - path_containing_images the full path of the directory containing pictures (e.g. /home/foo/bar/)
-- start (optional) an integer corresponding to the first image to consider. If not provided start=0
-- stop (optional) an integer corresponding to the last image to consider. If not provided stop = max(image_name)
+- start (optional, default 0) an integer corresponding to the first image to consider.
+- stop (optional, default max(image_name)) an integer corresponding to the last image to consider.
 
+### Examples
+- infest.py /home/foo/bar/ 0 250
+- infest.py /home/foo/bar/ 0
+- infest.py /home/foo/bar/
 
 Tested with ubuntu 18.10
 ### Latest news
-kINematic oF lESion developmenT.
+
 Please cite ...
 # Getting started
 # Installation instructions
 
 # Tuto
+All data are in the data_tuto/ directory
+
 ## Prerequist
 Name of images 1.jpg to N.jpg
 Layout file grid_layout.layout in the directory
