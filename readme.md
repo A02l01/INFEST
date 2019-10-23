@@ -6,7 +6,8 @@ INFEST for k**IN**ematic o**F** l**ES**ion developmen**T**. This plugin was used
 
 
 > **For academics used please cite :**
-Barbacci, A., Navaud, O., Mbengue, M., Vincent, R., Barascud, M., Aline, L., Raffaele, S., n.d. **Rapid identification of an Arabidopsis NLR gene conferring susceptibility to Sclerotinia sclerotiorum using real-time automated phenotyping**. Rev.
+>
+>Barbacci, A., Navaud, O., Mbengue, M., Vincent, R., Barascud, M., Aline, L., Raffaele, S., n.d. **Rapid identification of an Arabidopsis NLR gene conferring susceptibility to Sclerotinia sclerotiorum using real-time automated phenotyping**. Rev.
 
 
 
@@ -15,19 +16,21 @@ Barbacci, A., Navaud, O., Mbengue, M., Vincent, R., Barascud, M., Aline, L., Raf
 
 ### command line :
 
-infest.py path_containing_images start stop
-- path_containing_images the full path of the directory containing pictures (e.g. /home/foo/bar/)
-- start (optional, default 0) an integer corresponding to the first image to consider.
-- stop (optional, default max(image_name)) an integer corresponding to the last image to consider.
+`python infest.py path_containing_images start stop`
+- `path_containing_images` the full path of the directory containing pictures (e.g. /home/foo/bar/)
+- `start` (optional, default 0) an integer corresponding to the first image to consider.
+- `stop` (optional, default max(image_name)) an integer corresponding to the last image to consider.
 
 ### Examples
 `infest.py /home/foo/bar/ 0 250`
+
 `infest.py /home/foo/bar/ 0`
+
 `infest.py /home/foo/bar/`
 
 
 ### To go further
-To compute the growth rate associated to kinematic of lesion development we advice to use the 'segmented' R library after a log transform of the curve obtained with INFEST.
+>To compute the growth rate associated to kinematic of lesion development we advice to use the 'segmented' R library after a log transform of the curve obtained with INFEST.
 ### Latest news
 - Version 1 available
 
