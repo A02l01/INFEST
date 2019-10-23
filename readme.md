@@ -36,12 +36,10 @@ This version has been developed and tested under ubuntu 18.10 with python 2.7. T
 
 ## Prerequists
 Having python and conda install on your machine.
-- For linux install please see: [here][003223a6]
-- For other systems: [here][8dbdd21a]
+- For linux install please see: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
+- For other systems: https://docs.conda.io/projects/conda/en/latest/user-guide/install/#system-requirements
 ## Installation instructions
 Creation of a conda environment
-  [003223a6]: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html "conda linux install"
-  [8dbdd21a]: https://docs.conda.io/projects/conda/en/latest/user-guide/install/#system-requirements ""other os install""
 
 _conda env create _n INFEST -f env_Infest.yml_
 
