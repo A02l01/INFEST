@@ -22,6 +22,8 @@ infest.py path_containing_images start stop
 - infest.py /home/foo/bar/
 
 Tested with ubuntu 18.10
+### To go further
+To compute the growth rate associated to kinematic of lesion development we advice to use the 'segmented' R library after a log transform of the curve obtained with INFEST.
 ### Latest news
 
 Please cite ...
