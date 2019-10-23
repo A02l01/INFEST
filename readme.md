@@ -6,7 +6,7 @@ For academics used please cite :
 
 Barbacci, A., Navaud, O., Mbengue, M., Vincent, R., Barascud, M., Aline, L., Raffaele, S., n.d. **Rapid identification of an Arabidopsis NLR gene conferring susceptibility to Sclerotinia sclerotiorum using real-time automated phenotyping**. Rev.
 
-![Kinematic of lesion development for the leaf 'Col-0_154'](../d/d/blob/master/d/inf.gif)
+![Kinematic of lesion development for the leaf 'Col-0_154'](https://github.com/A02l01/d/blob/master/d/inf.gif)
 
 
 ### command line :
