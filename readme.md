@@ -43,19 +43,19 @@ Having python and conda install on your machine.
 - wget
 Creation of a conda environment
 
-_conda env create _n INFEST -f env_Infest.yml_
+`conda env create _n INFEST -f env_Infest.yml`
 
-_conda activate INFEST_
+`conda activate INFEST`
 
-_python infest.py path_to_picture _
+`python infest.py path_to_picture`
 
 
 
 # Tutorial
-In this short tutorial we will use INFEST to compute the kinematic of lesion development of a single detached leaf of Arabidopsis thaliana coined 'Col-0_254'
-![Col-0_254 leaf](https://github.com/A02l01/tuto/blob/master/data_tuto/pictures/grid_layout/panel.jpg)
+In this short tutorial we will use INFEST to compute the kinematic of lesion development of a single detached leaf of Arabidopsis thaliana coined 'Col-0_154'
+![Col-0_154 leaf](https://github.com/A02l01/tuto/blob/master/data_tuto/pictures/grid_layout/panel.jpg)
 
-Other kinematics can be computed by adding bounding boxes of leaves in the grid_layout.layout file.
+Other kinematics can be computed by adding bounding boxes of leaves in the `grid_layout.layout` file.
 
 ## creation of the layout file
 - creation of the grid_layout subdirectory in the picture directory. here creation of ./Image_tuto/pictures/grid_layout/
