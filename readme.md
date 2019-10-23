@@ -1,5 +1,13 @@
 # INFEST
 ## Overview
+- command line :
+
+infest.py path_containing_images start stop
+- path_containing_images the full path of the directory containing pictures (e.g. /home/foo/bar/)
+- start (optional) an integer corresponding to the first image to consider. If not provided start=0
+- stop (optional) an integer corresponding to the last image to consider. If not provided stop = max(image_name)
+
+
 Tested with ubuntu 18.10
 ### Latest news
 kINematic oF lESion developmenT.
