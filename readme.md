@@ -47,7 +47,7 @@ Having python and conda install on your machine.
 - For linux install please see: [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
 - For other systems: [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/#system-requirements)
 ## Installation instructions
-- Download the python sources e.g. using wget:
+- Download the INFEST sources e.g. using wget:
 
 `wget --no-check-certificate --content-disposition https://github.com/A02l01/INFEST/tarball/master`
 - Creation of a conda environment
