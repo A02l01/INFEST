@@ -5,7 +5,7 @@ INFEST for k**IN**ematic o**F** l**ES**ion developmen**T**. This plugin was used
 
  **For academics used please cite :**
 
->Barbacci, A., Navaud, O., Mbengue, M., Vincent, R., Barascud, M., Aline, L., Raffaele, S., n.d. **Rapid identification of an Arabidopsis NLR gene conferring susceptibility to Sclerotinia sclerotiorum using real-time automated phenotyping**. Rev.
+ >Barbacci, A., Navaud, O., Mbengue, M., Barascud, M., Godiard, L., Khaffif, M., Aline, L., Raffaele, S., 2020 **Rapid identification of an Arabidopsis NLR gene conferring susceptibility to Sclerotinia sclerotiorum using real-time automated phenotyping**. Rev.
 
 
 
