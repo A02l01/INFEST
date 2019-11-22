@@ -58,8 +58,6 @@ Having python and conda install on your machine.
 
 `python infest.py path_to_picture`
 
-
-
 # Tutorial
 > This tutorial was designed for linux users. It is easily transposable for macOs and Windows users by replacing most of command lines by fastidious mouse clicks.
 
