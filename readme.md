@@ -152,9 +152,9 @@ results are stored in `'.../A02l01-tuto-08e3f70/data_tuto/pictures/analyse.txt'`
 
 ## Compute the lesion LDT
 We extract the lesion doubling time (LDT) from the kinematic of lesion development using the python script `fit_INFEST.py`:
-`python fit_INFEST.py '.../A02l01-tuto-08e3f70/data_tuto/pictures/analyse.txt' '.../A02l01-tuto-08e3f70/data_tuto/pictures/ldt.png' -g
+`python fit_INFEST.py '.../A02l01-tuto-08e3f70/data_tuto/pictures/analyse.txt' '.../A02l01-tuto-08e3f70/data_tuto/pictures/ldt.txt' -g
 `
 leading to
-![Kinematic of lesion development for the leaf 'Col-0_154'](https://github.com/A02l01/tuto/blob/master/data_tuto/results/ldt.png)
+![Kinematic of lesion development for the leaf 'Col-0_154'](https://raw.githubusercontent.com/A02l01/d/master/d/ldt.png)
 
 We we show that LDT is a good proxy of the level of plant resistance in Barbacci et al. 2020. Nevertheless other proxy could be derived from the kinematics computed by INFEST.
