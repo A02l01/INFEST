@@ -129,7 +129,7 @@ Other kinematics can be computed by adding bounding boxes of leaves in the `grid
 
 ## creation of the layout file
 - Downloaded data contains yet a layout file but in the general case you must generate this file and put in the right directory
-- If needed creates a directory  in the pictures directory and the file `grid_layout.layout` in `grid_layout/`. Is looks like `.../A02l01-tuto-08e3f70/data_tuto/pictures/grid_layout/grid_layout.layout`. Fill `grid_layout.layout` with the coordinates of the bounding rectangles of leaves. We used [ImageJ](https://imagej.nih.gov/ij/download.html) to obtain coordinates. In this example the single line added in the `grid_layout.layout` file is
+- If needed creates a directory  in the pictures directory and the file `grid_layout.layout` in `grid_layout/` _e.g._ `.../A02l01-tuto-08e3f70/data_tuto/pictures/grid_layout/grid_layout.layout`. Fill `grid_layout.layout` with the coordinates of the bounding rectangles of leaves. We used [ImageJ](https://imagej.nih.gov/ij/download.html) to obtain coordinates. In this example the single line added in the `grid_layout.layout` file is
 
 `Col-0_154       1410    2574    1497    2721`
 
@@ -152,7 +152,7 @@ results are stored in `'.../A02l01-tuto-08e3f70/data_tuto/pictures/analyse.txt'`
 
 ## Compute the lesion LDT
 We extract the lesion doubling time (LDT) from the kinematic of lesion development using the python script `fit_INFEST.py`:
-`python fit_INFEST.py '.../A02l01-tuto-08e3f70/data_tuto/pictures/analyse.txt' '.../A02l01-tuto-08e3f70/data_tuto/pictures/ldt.txt' -g
+`python fit_INFEST.py '.../A02l01-tuto-08e3f70/data_tuto/pictures/analyse.txt' '.../A02l01-tuto-08e3f70/data_tuto/pictures/ldt.png' -g
 `
 leading to
 ![Kinematic of lesion development for the leaf 'Col-0_154'](https://github.com/A02l01/tuto/blob/master/data_tuto/results/ldt.png)
