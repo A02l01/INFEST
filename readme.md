@@ -61,7 +61,8 @@ This version has been developed and tested under ubuntu 18.10 with python 2.7. T
  ```'
 id_leaf_1\tymin\txmin\tymax\txmax\n
 id_leaf_1\tymin\txmin\tymax\txmax\n
-id_leaf_3\t...```
+id_leaf_3\t...
+```
 with `\t ` a tabulation.
 
 ### Python packages
