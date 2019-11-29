@@ -12,7 +12,7 @@ INFEST for k**IN**ematic o**F** l**ES**ion developmen**T**. This plugin was used
 ![Kinematic of lesion development for the leaf 'Col-0_154'](https://github.com/A02l01/d/blob/master/d/inf.gif)
 
 
-### Command line :
+### INFEST
 
 ```
 usage: infest.py [-h] [-f FIRST] [-l LAST] mpath
@@ -30,7 +30,7 @@ optional arguments:
 **output**
 > `analyse.txt` file created in the  `mpath` directory containing 3 columns: the **Id** of leaf, the **time** extracted from pictures name and the size of the **Lesion**
 
-### Examples
+#### Examples
 ```
 python infest.py mpath -f 0 -l 400
 
@@ -39,62 +39,7 @@ python infest.py mpath -f 0
 python infest.py mpath
 ```
 
-
-### Latest news
-- Version 1 available
-
-# Getting started
-## Details
-This version has been developed and tested under ubuntu 18.10 with python 2.7. The dependancies are:
-- matplotlib==2.2.4
-- numpy==1.16.5
-- scikit-image==0.14.5
-- pandas==
-
-## Prerequists
-### Pictures & Files
-- Jpeg images stored in a directory and named by an integer _e.g._ `1.jpg` to `N.jpg` corresponding to the time course.
-- the layout file `grid_layout.layout` in the subdirectory `grid_layout` of the directory containing pictures (e.g. `my_pictures/grid_layout/grid_layout.layout` _c.f._ tutorial)
-- The layout file provide the Id and the bounding boxes of leaves _e.g._
-
-
- ```'
-id_leaf_1\tymin\txmin\tymax\txmax\n
-id_leaf_1\tymin\txmin\tymax\txmax\n
-id_leaf_3\t...
-```
-with `\t ` a tabulation.
-
-### Python packages
-- for running INFEST
-  - matplotlib==2.2.4
-  - numpy==1.16.5
-  - scikit-image==0.14.5
-
-  are required
-
-- for running fit_INFEST
-  - Pandas==
-
-> __We strongly recommand to use virtual env such as conda virtual env to run INFEST__
-
-> Install conda
-- For linux install please see: [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
-- For other systems: [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/#system-requirements)
-- Creation of a conda environment
- - `conda env create -n INFEST -f env_Infest.yml`
- - `conda activate INFEST`
- - In the virtual environment
- - `python infest.py path_to_picture`
-
-### Download the INFEST and fit INFEST:
-
-`wget --no-check-certificate --content-disposition https://github.com/A02l01/INFEST/tarball/master`
-
-
-## fit INFEST
-
-
+### fit INFEST
 
 ```
 usage: fit_INFEST.py [-h] [-g] path_in path_out
@@ -108,10 +53,87 @@ optional arguments:
   -h, --help   show this help message and exit
   -g, --graph  monitoring the fit of the curve
 ```
+**output**
+> txt file specified in `path_out` directory containing 9 columns: the **Id** of leaf, the parameters **a1** to **a5** resulting from the fit,
+
+
+
+
+
+### Latest news
+- Version 1 available
+
+# Getting started
+## Details
+This version has been developed and tested under ubuntu 18.10 with python 2.7. The dependancies are:
+- backports-functools-lru-cache==1.5
+- cloudpickle==1.2.2
+- cycler==0.10.0
+- decorator==4.4.0
+- kiwisolver==1.1.0
+- matplotlib==2.2.4
+- networkx==2.2
+- numpy==1.16.5
+- pillow==6.2.1
+- pyparsing==2.4.2
+- python-dateutil==2.8.0
+- pytz==2019.3
+- pywavelets==1.0.3
+- scikit-image==0.14.5
+- scipy==1.2.2
+- six==1.12.0
+- subprocess32==3.5.4
+- argparse==1.1
+- pandas==0.23.3
+- pymodelfit==0.1
+
+__Dependancies are listed in the `env_Infest.yml` file__
+## Prerequists
+### Python and conda
+Install conda
+- For linux install please see: [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
+- For other systems: [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/#system-requirements)
+
+### Pictures & Files
+- Jpeg images stored in a directory and named by an integer _e.g._ `1.jpg` to `N.jpg` corresponding to the time course.
+- the layout file `grid_layout.layout` in the subdirectory `grid_layout` of the directory containing pictures (e.g. `my_pictures/grid_layout/grid_layout.layout` _c.f._ tutorial)
+- The layout file provide the Id and the bounding boxes of leaves _e.g._
+
+
+ ```'
+id_leaf_1\tymin\txmin\tymax\txmax\n
+id_leaf_1\tymin\txmin\tymax\txmax\n
+id_leaf_3\t...
+```
+with `\t ` a tabulation.
+### Download INFEST and fit_INFEST
+ - manually, using git or wget
+
+`wget --no-check-certificate --content-disposition https://github.com/A02l01/INFEST/tarball/master`
+
+ - Extract the tarball
+
+ `tar xvzf A02l01-INFEST-719d386.tar.gz`
+### Creation of the conda environment
+
+Creation of a conda environment called INFEST from the yaml file
+ - download `env_Infest.yml` file in your working directory
+ - `conda env create -n INFEST -f env_Infest.yml`
+ - `conda activate INFEST`
+ - In the virtual environment
+ - `python infest.py path_to_picture`
+
+> For some reasons the module [pymodelfit](https://pythonhosted.org/PyModelFit/#quick-install) cannot be install by conda. So if you want to use fit_INFEST to fit your data and compute the LDT index please install [pymodelfit](https://pythonhosted.org/PyModelFit/#quick-install) manually:
+> - sudo pip install pymodelfit
+
+
+
+
+
 
 
 # Tutorial
-> This tutorial was designed for linux users. It is easily transposable for macOs and Windows users by replacing most of command lines by fastidious mouse clicks.
+> This tutorial was designed for linux users. It is easily transposable for macOS and Windows users by replacing most of command lines by fastidious mouse clicks.
 
 In this short tutorial we will use **INFEST** to compute the kinematic of lesion development of a single detached leaf of _Arabidopsis thaliana_ coined 'Col-0_154'.
 
@@ -151,10 +173,10 @@ results are stored in `'.../A02l01-tuto-08e3f70/data_tuto/pictures/analyse.txt'`
 ![Kinematic of lesion development for the leaf 'Col-0_154'](https://github.com/A02l01/tuto/blob/master/data_tuto/results/results.jpeg)
 
 ## Compute the lesion LDT
-We extract the lesion doubling time (LDT) from the kinematic of lesion development using the python script `fit_INFEST.py`:
+We show that LDT is a good proxy of the level of plant resistance in Barbacci et al. 2020. Nevertheless other proxy could be derived from the kinematics computed by INFEST.
+
+To extract the lesion doubling time (LDT) from the kinematic of lesion development using the python script `fit_INFEST.py`:
 `python fit_INFEST.py '.../A02l01-tuto-08e3f70/data_tuto/pictures/analyse.txt' '.../A02l01-tuto-08e3f70/data_tuto/pictures/ldt.txt' -g
 `
 leading to
 ![Kinematic of lesion development for the leaf 'Col-0_154'](https://raw.githubusercontent.com/A02l01/d/master/d/ldt.png)
-
-We we show that LDT is a good proxy of the level of plant resistance in Barbacci et al. 2020. Nevertheless other proxy could be derived from the kinematics computed by INFEST.
