@@ -1,13 +1,16 @@
 # INFEST
 ## Overview
-INFEST for k**IN**ematic o**F** l**ES**ion developmen**T**. This plugin was used to compute the kinematic of lesion caused by the necrotrophic fungus _Sclerotinia sclerotiorum_. INFEST was developed for QIP (quantitative immunity in plant) @ LIPM (Lab of plant microbes interaction) in Toulouse by Adelin Barbacci. **INFEST was founded by Sylvain Raffaele's ERC varywim**. Feel free to use it.
+INFEST for k**IN**ematic o**F** l**ES**ion developmen**T**. This plugin was used to compute the kinematic of lesion caused by the necrotrophic fungus _Sclerotinia sclerotiorum_. INFEST was developed for [QIP](http://qiplab.weebly.com/overview.html) (quantitative immunity in plant) @ LIPM (Lab of plant microbes interaction) in Toulouse by Adelin Barbacci. **INFEST was founded by Sylvain Raffaele's ERC varywim**. Feel free to use it.
 
 
  **For academics use please cite :**
 
  >Barbacci, A., Navaud, O., Mbengue, M., Barascud, M., Godiard, L., Khaffif, M., Lacaze, A., Raffaele, S., 2020 **Rapid identification of an Arabidopsis NLR gene conferring susceptibility to Sclerotinia sclerotiorum using real-time automated phenotyping**. Rev.
 
+We are on
+![twitter](https://github.com/A02l01/d/blob/master/d/Twiter-AsciiArt.png)
 
+[AB](https://twitter.com/A_Barbacci)
 
 ![Kinematic of lesion development for the leaf 'Col-0_154'](https://github.com/A02l01/d/blob/master/d/inf.gif)
 
@@ -55,10 +58,6 @@ optional arguments:
 ```
 **output**
 > txt file specified in `path_out` directory containing 9 columns: the **Id** of leaf, the parameters **a1** to **a5** resulting from the fit,
-
-
-
-
 
 ### Latest news
 - Version 1 available
