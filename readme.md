@@ -7,10 +7,9 @@ INFEST for k**IN**ematic o**F** l**ES**ion developmen**T**. This plugin was used
 
  >Barbacci, A., Navaud, O., Mbengue, M., Barascud, M., Godiard, L., Khaffif, M., Lacaze, A., Raffaele, S., 2020 **Rapid identification of an Arabidopsis NLR gene conferring susceptibility to Sclerotinia sclerotiorum using real-time automated phenotyping**. Rev.
 
-We are on
-![twitter](https://github.com/A02l01/d/blob/master/d/Twiter-AsciiArt.png)
-
-[AB](https://twitter.com/A_Barbacci)
+We are on twitter
+[AB](https://twitter.com/A_Barbacci),
+[SR](https://twitter.com/QIPlab)
 
 ![Kinematic of lesion development for the leaf 'Col-0_154'](https://github.com/A02l01/d/blob/master/d/inf.gif)
 
@@ -57,7 +56,7 @@ optional arguments:
   -g, --graph  monitoring the fit of the curve
 ```
 **output**
-> txt file specified in `path_out` directory containing 9 columns: the **Id** of leaf, the parameters **a1** to **a5** resulting from the fit,
+> txt file specified in `path_out` directory containing 9 columns: the **Id** of leaf, the parameters **a1** to **a5** resulting from the fit, the **residuals** of the fit, the lesion doubling time **LDT**, and the **Latency**
 
 ### Latest news
 - Version 1 available
