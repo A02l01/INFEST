@@ -116,7 +116,7 @@ with `\t ` a tabulation.
  `tar xvzf A02l01-INFEST-719d386.tar.gz`
 ### Creation of the conda environment
 
-Creation of a conda environment called INFEST from the yaml file
+Creation of a conda environment called INFEST from the yaml file <a name="#conda"></a>
  - download `env_Infest.yml` file in your working directory
  - `conda env create -n INFEST -f env_Infest.yml`
  - `conda activate INFEST`
@@ -125,11 +125,6 @@ Creation of a conda environment called INFEST from the yaml file
 
 > For some reasons the module [pymodelfit](https://pythonhosted.org/PyModelFit/#quick-install) cannot be install by conda. So if you want to use fit_INFEST to fit your data and compute the LDT index please install [pymodelfit](https://pythonhosted.org/PyModelFit/#quick-install) manually:
 > - sudo pip install pymodelfit
-
-
-
-
-
 
 
 # Tutorial
@@ -165,6 +160,10 @@ with:
 >**Items are separeted by a tabulation**.
 
 ## Compute kinematics of Lesion
+
+- activate conda environment (to create the environment please see [conda](#conda))
+
+`conda activate INFEST`
 
 `python infest.py '.../A02l01-tuto-08e3f70/data_tuto/pictures/' -f 0 -l 270`
 
