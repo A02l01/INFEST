@@ -161,7 +161,7 @@ with:
 
 ## Compute kinematics of Lesion
 
-- activate conda environment (to create the environment please see [conda](#conda))
+- activate conda environment (to create the INFEST conda environment please see [here](#conda))
 
 `conda activate INFEST`
 
