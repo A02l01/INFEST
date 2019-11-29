@@ -180,3 +180,16 @@ To extract the lesion doubling time (LDT) from the kinematic of lesion developme
 `
 leading to
 ![Kinematic of lesion development for the leaf 'Col-0_154'](https://raw.githubusercontent.com/A02l01/d/master/d/ldt.png)
+
+
+```
+   ##     ###             ###     ##
+  #       ###             ###       #
+ #                                   #
+ #        ###     ###     ###        #
+ #        ###     ###     ###        #
+ #        #       #       #        #
+  ##     #       #       #       ##
+
+QiP Team LIPM Toulouse
+```
