@@ -1,0 +1,43 @@
+name: INFEST
+channels:
+  - defaults
+dependencies:
+  - _libgcc_mutex=0.1=main
+  - ca-certificates=2019.10.16=0
+  - certifi=2019.9.11=py27_0
+  - libedit=3.1.20181209=hc058e9b_0
+  - libffi=3.2.1=hd88cf55_4
+  - libgcc-ng=9.1.0=hdf63c60_0
+  - libstdcxx-ng=9.1.0=hdf63c60_0
+  - ncurses=6.1=he6710b0_1
+  - openssl=1.1.1d=h7b6447c_3
+  - pip=19.3.1=py27_0
+  - python=2.7.17=h9bab390_0
+  - readline=7.0=h7b6447c_5
+  - setuptools=41.4.0=py27_0
+  - sqlite=3.30.0=h7b6447c_0
+  - tk=8.6.8=hbc83047_0
+  - wheel=0.33.6=py27_0
+  - zlib=1.2.11=h7b6447c_3
+  - pip:
+    - backports-functools-lru-cache==1.5
+    - cloudpickle==1.2.2
+    - cycler==0.10.0
+    - decorator==4.4.0
+    - kiwisolver==1.1.0
+    - matplotlib==2.2.4
+    - networkx==2.2
+    - numpy==1.16.5
+    - pillow==6.2.1
+    - pyparsing==2.4.2
+    - python-dateutil==2.8.0
+    - pytz==2019.3
+    - pywavelets==1.0.3
+    - scikit-image==0.14.5
+    - scipy==1.2.2
+    - six==1.12.0
+    - subprocess32==3.5.4
+    - argparse==1.1
+    - pandas==0.23.3
+prefix: /home/users/GRP_DR/adbarbacci/.conda/envs/INFEST
+
