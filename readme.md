@@ -61,6 +61,7 @@ optional arguments:
 ### Latest news
 - Version 1 available
 
+***
 # Getting started
 ## Details
 This version has been developed and tested under ubuntu 18.10 with python 2.7. The dependancies are:
@@ -120,9 +121,7 @@ Creation of a conda environment called INFEST from the yaml file <a name="#conda
  - To activate INFEST env: `conda activate INFEST`
  - To deactivate INFEST env: `conda deactivate`
 
-
-
-
+***
 # Tutorial
 > This tutorial was designed for linux users. It is easily transposable for macOS and Windows users by replacing most of command lines by fastidious mouse clicks.
 
@@ -176,6 +175,7 @@ To extract the lesion doubling time (LDT) from the kinematic of lesion developme
 leading to
 ![Kinematic of lesion development for the leaf 'Col-0_154'](https://raw.githubusercontent.com/A02l01/d/master/d/ldt.png)
 
+***
 
 ```
   ##     ###             ###     ##
