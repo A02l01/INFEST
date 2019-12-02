@@ -84,7 +84,6 @@ This version has been developed and tested under ubuntu 18.10 with python 2.7. T
 - subprocess32==3.5.4
 - argparse==1.1
 - pandas==0.23.3
-- pymodelfit==0.1
 
 __Dependancies are listed in the `env_Infest.yml` file__
 ## Prerequists
