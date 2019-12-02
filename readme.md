@@ -117,18 +117,16 @@ with `\t ` a tabulation.
 Creation of a conda environment called INFEST from the yaml file <a name="#conda"></a>
  - download `env_Infest.yml` file in your working directory
  - `conda env create -n INFEST -f env_Infest.yml`
- - `conda activate INFEST`
- - In the virtual environment
- - `python infest.py path_to_picture`
+ - To activate INFEST env: `conda activate INFEST`
+ - To deactivate INFEST env: `conda deactivate`
 
-> For some reasons the module [pymodelfit](https://pythonhosted.org/PyModelFit/#quick-install) cannot be install by conda. So if you want to use fit_INFEST to fit your data and compute the LDT index please install [pymodelfit](https://pythonhosted.org/PyModelFit/#quick-install) manually:
-> - sudo pip install pymodelfit
+
 
 
 # Tutorial
 > This tutorial was designed for linux users. It is easily transposable for macOS and Windows users by replacing most of command lines by fastidious mouse clicks.
 
-In this short tutorial we will use **INFEST** to compute the kinematic of lesion development of a single detached leaf of _Arabidopsis thaliana_ coined 'Col-0_154'.
+In this short tutorial we will use **INFEST** to compute the kinematic of lesion development of a single detached leaf of _Arabidopsis thaliana_ coined _Col-0_154_.
 
 ## Download data
 Data are in the `data_tuto/` directory. Download and extract data:

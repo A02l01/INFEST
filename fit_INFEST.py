@@ -12,15 +12,9 @@
 import pandas as pd
 from pylab import *
 import matplotlib.pyplot as plt
-from pymodelfit import *
-from pymodelfit import FunctionModel1DAuto
 import numpy as np
 import sys
 import argparse
-
-class PolyModel(FunctionModel1DAuto):
-	def f(self,x,a1=0.1,a2=0.1,a3=1,a4=2,a5=1):
-		return a1*x**4+a2*x**3+a3*x**2+a4*x+a5
 
 def get_residuals(model,fit_parameter,original_x,original_y):
 	if model == "PolyModel":
@@ -29,14 +23,14 @@ def get_residuals(model,fit_parameter,original_x,original_y):
 		res = np.mean(res)
 	return res
 
-def integrate(qm,df3):
-	qb = PolyModel()
+def integrate(qm2,df3):
 	t = np.arange(0,df3.t.tolist()[-1],0.5)
-	ys = qb.f(t,a1=qm.pardict['a1'],a2=qm.pardict['a2'],a3=qm.pardict['a3'],a4=qm.pardict['a4'],a5=qm.pardict['a5']).tolist()
-	ys -= qm.pardict['a5']
+	ys = np.poly1d(qm2[0])(t)
+	# ys -= qm2[0][4]
 	ii=0
 	tau_600 = 0
 	tau_300 = 0
+
 	while (ii<len(ys)-1):
 		if(ys[ii]<300) & (ys[ii+1]>=300):
 			tau_300 = t[ii]
@@ -44,11 +38,12 @@ def integrate(qm,df3):
 			tau_600 = t[ii]
 			break
 		ii+=1
+
 	return tau_600-tau_300,tau_600
 
-def m_plot(qm,df2,l):
+def m_plot(qm2,df2,l):
 	plt.figure(l.split('/')[-1])
-	qm.plot()
+	plt.plot(df2.t,np.poly1d(qm2[0])(df2.t),'--',label="model")
 	plt.plot(df2.t,df2.Lesion,'.',label="Lesion raw")
 	plt.legend()
 	show()
@@ -60,26 +55,23 @@ if __name__=="__main__":
 	parser.add_argument("-g","--graph", action="store_true",help="monitoring the fit of the curve")
 	args = parser.parse_args()
 
-	# path = "/media/ab/Zeus/Phyto/Laz-5/res"+sys.argv[1]+"/"#+"/Nav"+sys.argv[3]+"/"
-
 	print("Open "+args.path_in)
 	df=pd.read_csv(args.path_in,sep="\t")
 
 	df['t'] = (df['time'])*10
 	leaf = np.unique(df.Id)
 
-	out = "Nom\ta1\ta2\ta3\ta4\ta5\tres\tLDT\tLatency\n"
+	out = "Id\ta1\ta2\ta3\ta4\ta5\tresiduals\tLDT\tLatency\n"
 	ii = 0
 	for l in leaf:
 		df2 = df[(df.Id == l) & (df.t<1500)  & (df.t>600)]
 		if size(df2.t[df2.Lesion>300]) > 10 :
-			qm = PolyModel()
-			qm.fitData(df2.t,df2.Lesion)
+			qm2 = np.polyfit(df2.t,df2.Lesion,4,full=True)
 			if args.graph:
-				m_plot(qm,df2,args.path_in+l)
-			res = get_residuals("PolyModel",qm,df2.t,df2.Lesion)
-			puissance63,puissance60 =  integrate(qm,df2)
-			new_out = l+"\t"+str(qm.pardict['a1'])+"\t"+str(qm.pardict['a2'])+"\t"+str(qm.pardict['a3'])+"\t"+str(qm.pardict['a4'])+"\t"+str(qm.pardict['a5'])+"\t"+str(res)+"\t"+str(puissance63)+"\t"+str(puissance60)+"\n"
+				m_plot(qm2,df2,args.path_in+l)
+			res = qm2[1][0]
+			puissance63,puissance60 =  integrate(qm2,df2)
+			new_out = l+"\t"+str(qm2[0][0])+"\t"+str(qm2[0][1])+"\t"+str(qm2[0][2])+"\t"+str(qm2[0][3])+"\t"+str(qm2[0][4])+"\t"+str(res)+"\t"+str(puissance63)+"\t"+str(puissance60)+"\n"
 			out+= new_out
 		else:
 			fig = plt.figure(l.split('/')[-1])
