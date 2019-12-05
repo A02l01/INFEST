@@ -23,7 +23,7 @@ def get_residuals(model,fit_parameter,original_x,original_y):
 		res = np.mean(res)
 	return res
 
-def integrate(qm2,df3):
+def integrate(qm2,df3,ft):
 	t = np.arange(0,df3.t.tolist()[-1],0.5)
 	ys = np.poly1d(qm2[0])(t)
 	# ys -= qm2[0][4]
@@ -32,9 +32,9 @@ def integrate(qm2,df3):
 	tau_300 = 0
 
 	while (ii<len(ys)-1):
-		if(ys[ii]<300) & (ys[ii+1]>=300):
+		if(ys[ii]<ft) & (ys[ii+1]>=ft):
 			tau_300 = t[ii]
-		if(ys[ii]<800) & (ys[ii+1]>=800):
+		if(ys[ii]<2*ft) & (ys[ii+1]>=2*ft):
 			tau_600 = t[ii]
 			break
 		ii+=1
@@ -52,6 +52,7 @@ if __name__=="__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument("path_in", help="the path to the file containing temporal data computed by INFEST")
 	parser.add_argument("path_out", help="the path to the file containing LDT and Latency",default='')
+	parser.add_argument("-ft","--first", help="the first time to consider for the computation of the LDT",type=int,default=300,)
 	parser.add_argument("-g","--graph", action="store_true",help="monitoring the fit of the curve")
 	args = parser.parse_args()
 
@@ -64,13 +65,14 @@ if __name__=="__main__":
 	out = "Id\ta1\ta2\ta3\ta4\ta5\tresiduals\tLDT\tLatency\n"
 	ii = 0
 	for l in leaf:
-		df2 = df[(df.Id == l) & (df.t<1500)  & (df.t>600)]
+		# df2 = df[(df.Id == l) & (df.t<1500)  & (df.t>600)]
+		df2 = df[(df.Id == l)]
 		if size(df2.t[df2.Lesion>300]) > 10 :
 			qm2 = np.polyfit(df2.t,df2.Lesion,4,full=True)
 			if args.graph:
 				m_plot(qm2,df2,args.path_in+l)
 			res = qm2[1][0]
-			puissance63,puissance60 =  integrate(qm2,df2)
+			puissance63,puissance60 =  integrate(qm2,df2,args.first)
 			new_out = l+"\t"+str(qm2[0][0])+"\t"+str(qm2[0][1])+"\t"+str(qm2[0][2])+"\t"+str(qm2[0][3])+"\t"+str(qm2[0][4])+"\t"+str(res)+"\t"+str(puissance63)+"\t"+str(puissance60)+"\n"
 			out+= new_out
 		else:
