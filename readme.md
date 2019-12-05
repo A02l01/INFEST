@@ -44,16 +44,19 @@ python infest.py mpath
 ### fit INFEST
 
 ```
-usage: fit_INFEST.py [-h] [-g] path_in path_out
+usage: fit_INFEST.py [-h] [-ft FIRST] [-g] path_in path_out
 
 positional arguments:
-  path_in      the path to the file containing temporal data computed by
-               INFEST
-  path_out     the path to the file containing LDT and Latency
+  path_in               the path to the file containing temporal data computed
+                        by INFEST
+  path_out              the path to the file containing LDT and Latency
 
 optional arguments:
-  -h, --help   show this help message and exit
-  -g, --graph  monitoring the fit of the curve
+  -h, --help            show this help message and exit
+  -ft FIRST, --first FIRST
+                        the first time to consider for the computation of the
+                        LDT
+  -g, --graph           monitoring the fit of the curve
 ```
 **output**
 > txt file specified in `path_out` directory containing 9 columns: the **Id** of leaf, the parameters **a1** to **a5** resulting from the fit, the **residuals** of the fit, the lesion doubling time **LDT**, and the **Latency**
@@ -169,7 +172,7 @@ results are stored in `'.../A02l01-tuto-08e3f70/data_tuto/pictures/analyse.txt'`
 We show that LDT is a good proxy of the level of plant resistance in Barbacci et al. 2020. Nevertheless other proxy could be derived from the kinematics computed by INFEST.
 
 To extract the lesion doubling time (LDT) from the kinematic of lesion development using the python script `fit_INFEST.py`:
-`python fit_INFEST.py '.../A02l01-tuto-08e3f70/data_tuto/pictures/analyse.txt' '.../A02l01-tuto-08e3f70/data_tuto/pictures/ldt.txt' -g
+`python fit_INFEST.py '.../A02l01-tuto-08e3f70/data_tuto/pictures/analyse.txt' '.../A02l01-tuto-08e3f70/data_tuto/pictures/ldt.txt' -g -fs 400
 `
 leading to
 ![Kinematic of lesion development for the leaf 'Col-0_154'](https://raw.githubusercontent.com/A02l01/d/master/d/ldt.png)
