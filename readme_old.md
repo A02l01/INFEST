@@ -108,17 +108,22 @@ id_leaf_3\t...
 ```
 with `\t ` a tabulation.
 ### Download INFEST and fit_INFEST
- - manually, using git
-   `$ git clone https://github.com/A02l01/INFEST.git`
+ - manually, using git or wget
+   - git:
 
+   `$ git clone https://github.com/A02l01/INFEST.git`
+   - wget
+
+   `$ wget --no-check-certificate --content-disposition https://github.com/A02l01/INFEST/tarball/master`
+
+   `$ tar xvzf A02l01-INFEST-xxx.tar.gz`
 ### Creation of the conda environment
 
-Creation of a conda environment called INFEST from the yaml file <a name="#conda"></a>. In bash
- - Check that `env_Infest.yml` file is in your working directory
- - `$ conda env create -n INFEST -f env_Infest.yml`
- - Initialize your shell `$ conda init bash`
- - To activate INFEST env: `$ conda activate INFEST`
- - To deactivate INFEST env: `$ conda deactivate`
+Creation of a conda environment called INFEST from the yaml file <a name="#conda"></a>
+ - download `env_Infest.yml` file in your working directory
+ - `conda env create -n INFEST -f env_Infest.yml`
+ - To activate INFEST env: `conda activate INFEST`
+ - To deactivate INFEST env: `conda deactivate`
 
 ***
 # Tutorial
@@ -127,9 +132,15 @@ Creation of a conda environment called INFEST from the yaml file <a name="#conda
 In this short tutorial we will use **INFEST** to compute the kinematic of lesion development of a single detached leaf of _Arabidopsis thaliana_ coined _Col-0_154_.
 
 ## Download data
-Data are in the `data_tuto/` directory. Download and extract data with git:
+Data are in the `data_tuto/` directory. Download and extract data with git or wget:
+- git:
 
-`$ git clone https://github.com/A02l01/tuto.git`
+`$ git https://github.com/A02l01/tuto.git`
+- wget:
+
+`$ wget --no-check-certificate --content-disposition https://github.com/A02l01/tuto/tarball/master`
+
+`$ tar xvzf A02l01-tuto-xxx.tar.gz`
 
 
 ![Col-0_154 leaf](https://github.com/A02l01/tuto/blob/master/data_tuto/pictures/grid_layout/panel.jpg)
@@ -138,7 +149,7 @@ Other kinematics can be computed by adding bounding boxes of leaves in the `grid
 
 ## creation of the layout file
 - Downloaded data contains yet a layout file but in the general case you must generate this file and put in the right directory
-- If needed creates a directory  in the pictures directory and the file `grid_layout.layout` in `grid_layout/` _e.g._ `./tuto/data_tuto/pictures/grid_layout/grid_layout.layout`. Fill `grid_layout.layout` with the coordinates of the bounding rectangles of leaves. We used [ImageJ](https://imagej.nih.gov/ij/download.html) to obtain coordinates. In this example the single line added in the `grid_layout.layout` file is
+- If needed creates a directory  in the pictures directory and the file `grid_layout.layout` in `grid_layout/` _e.g._ `.../A02l01-tuto-08e3f70/data_tuto/pictures/grid_layout/grid_layout.layout`. Fill `grid_layout.layout` with the coordinates of the bounding rectangles of leaves. We used [ImageJ](https://imagej.nih.gov/ij/download.html) to obtain coordinates. In this example the single line added in the `grid_layout.layout` file is
 
 `Col-0_154       1410    2574    1497    2721`
 
@@ -153,13 +164,13 @@ with:
 
 ## Compute kinematics of Lesion
 
-- In the directory containing infest. py file, activate conda environment (to create the INFEST conda environment please see instructions [here](#creation-of-the-conda-environment))
+- activate conda environment (to create the INFEST conda environment please see instructions [here](#creation-of-the-conda-environment))
 
 `$ conda activate INFEST`
 
-`$ python infest.py '../tuto/data_tuto/pictures/' -f 0 -l 270`
+`$ python infest.py '.../data_tuto/pictures/' -f 0 -l 270`
 
-results are stored in `'../tuto/data_tuto/pictures/analyse.txt'`
+results are stored in `'.../data_tuto/pictures/analyse.txt'`
 
 ![Kinematic of lesion development for the leaf 'Col-0_154'](https://github.com/A02l01/tuto/blob/master/data_tuto/results/results.jpeg)
 
@@ -168,7 +179,7 @@ We show that LDT is a good proxy of the level of plant resistance in Barbacci et
 
 To extract the lesion doubling time (LDT) from the kinematic of lesion development using the python script `fit_INFEST.py`:
 
-`$ python fit_INFEST.py '../tuto/data_tuto/pictures/analyse.txt' '../tuto/data_tuto/pictures/ldt.txt' -g -fs 400
+`$ python fit_INFEST.py '.../data_tuto/pictures/analyse.txt' '.../data_tuto/pictures/ldt.txt' -g -fs 400
 `
 leading to
 ![Kinematic of lesion development for the leaf 'Col-0_154'](https://raw.githubusercontent.com/A02l01/d/master/d/ldt.png)
