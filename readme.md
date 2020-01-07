@@ -168,9 +168,11 @@ We show that LDT is a good proxy of the level of plant resistance in Barbacci et
 
 To extract the lesion doubling time (LDT) from the kinematic of lesion development using the python script `fit_INFEST.py`:
 
-`$ python fit_INFEST.py '../tuto/data_tuto/pictures/analyse.txt' '../tuto/data_tuto/pictures/ldt.txt' -g -fs 400
+`$ python fit_INFEST.py '../tuto/data_tuto/pictures/analyse.txt' '../tuto/data_tuto/pictures/ldt.txt' -g -ft 400
 `
 leading to
+
+
 ![Kinematic of lesion development for the leaf 'Col-0_154'](https://raw.githubusercontent.com/A02l01/d/master/d/ldt.png)
 
 ***
