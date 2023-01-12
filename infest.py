@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 
    ##     ###             ###     ##
   #       ###             ###       #
@@ -182,9 +183,9 @@ def check_arg(path):
 	import glob
 	mstart,mstop=0,0
 	file_list = glob.glob(path+"*.jpg")
-	file_list.sort(key=lambda f: int(filter(str.isdigit, f)))
-	mstart = int(file_list[0].split('/')[-1].split('.')[0])
-	mstop  = int(file_list[-1].split('/')[-1].split('.')[0])
+	mlist = sorted( [ int( os.path.basename(file_path).split('.')[0] ) for file_path in file_list ] )
+	mstart = mlist[0]
+	mstop  = mlist[-1]
 	return mstart, mstop
 
 if __name__ == "__main__":
