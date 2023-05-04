@@ -1,0 +1,25 @@
+# general things to ignore
+env/**
+build/**
+dist/
+*.egg-info/
+*.egg
+*.py[cod]
+__pycache__/
+*.so
+*~
+.eggs/**
+conda-build/build
+*.ipynb
+
+**/.ipynb_checkpoints
+.mypy_cache
+
+# due to using tox and pytest
+.tox
+.cache
+.pytest_cache/**
+.vscode
+
+# Things to include that we ignored earlier
+!**/.gitinclude
