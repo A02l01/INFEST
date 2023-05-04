@@ -2,7 +2,6 @@
 
 import argparse
 import sys, os
-from os.path import join as pjoin
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
@@ -61,8 +60,6 @@ def check_layout(layout: str, inimage: str, outimage: str, dpi: int = 400):
     # Type annotation from subplots is FigureBase, which doesn't have savefig defined.
     fig = cast(Figure, fig)
 
-    # subplots returns an array. We need the only element that should be in there
-    ax = ax[0]
     ax.imshow(back)
 
     with open(layout, "r") as target_f:
@@ -86,4 +83,5 @@ def check_layout(layout: str, inimage: str, outimage: str, dpi: int = 400):
                 color="black"
             )
 
+    os.makedirs(os.path.dirname(outimage), exist_ok=True)
     fig.savefig(outimage, dpi=dpi)

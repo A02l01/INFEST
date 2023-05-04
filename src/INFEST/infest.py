@@ -186,8 +186,8 @@ def check_arg(path):
     file_list = glob.glob(pjoin(path, "*.jpg"))
 
     file_list.sort(key=lambda f: int("".join(filter(str.isdigit, f))))
-    mstart = int(splitext(basename(file_list[0]))[1])
-    mstop  = int(splitext(basename(file_list[-1]))[1])
+    mstart = int(splitext(basename(file_list[0]))[0])
+    mstop  = int(splitext(basename(file_list[-1]))[0])
     return mstart, mstop
 
 
@@ -234,7 +234,7 @@ def infest(mpath: str, first: int = 0, last: int = 0):
     if os.path.isfile(pjoin(mpath, "analyse.txt")) == False:
         f1 = pjoin(mpath, "analyse.txt")
     else:
-        date_now = datetime.date.today().strftime("%B %d, %Y")
+        date_now = datetime.date.today().strftime("%Y%m%d")
         f1 = pjoin(mpath, f"analyse_{date_now}.txt")
 
     f2 = pjoin(mpath, "area.txt")
@@ -252,7 +252,7 @@ def infest(mpath: str, first: int = 0, last: int = 0):
                 p = Panel(image, 2, mpath, N)
                 for l in p.leaf_stack:
                     l.get_disease()
-                    out = "\t".join([l.name, str(N), l.s_disease])
+                    out = "\t".join([l.name, str(N), str(l.s_disease)])
                     print(out, file=handle1)
                     s = "\t".join([l.name, str(l.leaf_area)])
                     print(s, file=handle2)

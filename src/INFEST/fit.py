@@ -108,7 +108,7 @@ def infest(
 
     out = "Id\ta1\ta2\ta3\ta4\ta5\tresiduals\tLDT\tLatency\n"
     for leaf, subdf in df.groupby("Id"):
-        if subdf.loc[subdf["Lesion"] > 300, "t"].size() > 10:
+        if subdf.loc[subdf["Lesion"] > 300, "t"].size > 10:
             qm2 = np.polyfit(subdf["t"], subdf["Lesion"], 4, full=True)
             if graph:
                 m_plot(qm2, subdf, f"{path_in}{str(leaf)}")
