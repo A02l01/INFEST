@@ -10,14 +10,22 @@
 
 
 import numpy as np
+import pandas as pd
 import sys
 from skimage.color import rgb2gray
 from skimage import io
 from scipy.cluster.vq import kmeans, vq
+from matplotlib import pyplot as plt
+from matplotlib import animation as anim
+
 from .leaf import Leaf
 import os
 from os.path import join as pjoin
 from os.path import basename, splitext
+from multiprocessing import Pool
+from tempfile import TemporaryDirectory
+from collections import defaultdict
+import functools
 import datetime
 import argparse
 
@@ -49,11 +57,10 @@ class Panel:
         if not os.path.exists(pjoin(self.path, 'grid_layout')):
             os.makedirs(pjoin(self.path, 'grid_layout'), exist_ok=True)
             print("grid_layout directory has been created")
-        else :
-            if os.path.isfile(self.path+'grid_layout/grid_layout.layout'):
-                out = True
+        else:
+            out = os.path.isfile(pjoin(self.path, 'grid_layout/grid_layout.layout'))
         if out == False:
-            print("No layout found !\nPlease create a file 'grid_layout.layout' in\n"+self.path+"grid_layout")
+            print("No layout found !\nPlease create a file 'grid_layout.layout' in\n"+ pjoin(self.path, "grid_layout"))
             sys.exit()
         return out
 
@@ -180,6 +187,31 @@ class Panel:
         temp = self.i_original
         return temp
 
+def write_animation(sample, data, images, where_to):
+
+    fig, (ax1, ax2) = plt.subplots(ncols=1, nrows=2)
+    ax1.set_axis_off()
+
+    image = ax1.imshow(io.imread(images[0]))
+    lesion = ax2.scatter(x=np.arange(len(data)), y=data, s=10, marker="o", alpha=0.5)
+
+    vl = ax2.axvline(x=0, c="red")
+    te = ax2.text(len(data), 0, "0", verticalalignment="bottom", horizontalalignment="right")
+
+    def update(frame):
+        idx, fname = frame
+        i = io.imread(fname)
+        image.set_data(i)
+        vl.set_xdata([idx])
+        te.set_text(str(idx))
+        return image, vl, te
+
+    ani = anim.FuncAnimation(fig=fig, func=update, frames=list(enumerate(images)), interval=100)
+    ani.save(pjoin(where_to, f"{sample}.mpeg"), writer="ffmpeg")
+    plt.close()
+    return
+
+
 def check_arg(path):
     import glob
     mstart, mstop = 0, 0
@@ -218,12 +250,53 @@ def main(prog: str | None = None, argv: list[str] | None = None):
         help="Number of the last picture",
         default=0
     )
+    parser.add_argument(
+        "-w", "--write-video",
+        type=str,
+        help="Write videos of samples to this directory",
+        default=None
+    )
+    parser.add_argument(
+        "-n", "--ncpu",
+        type=int,
+        help="How many images to process in parallel.",
+        default=1
+    )
     args = parser.parse_args(argv)
-    infest(mpath=args.mpath, first=args.first, last=args.last)
+    infest(mpath=args.mpath, first=args.first, last=args.last, write_video=args.write_video, ncpu=args.ncpu)
     return
 
 
-def infest(mpath: str, first: int = 0, last: int = 0):
+def process_image(
+    N: int,
+    fname: str,
+    mpath: str,
+    write_video: str | None,
+    tmpdir: str,
+):
+    print(f'- processing image {fname}')
+
+    image = io.imread(fname)
+    output = list()
+    p = Panel(image, 2, mpath, N)
+    for l in p.leaf_stack:
+        l.get_disease()
+        # out = "\t".join([l.name, str(N), str(l.s_disease)])
+        # print(out, file=handle1)
+        # s = "\t".join([l.name, str(N), str(l.leaf_area)])
+        # print(s, file=handle2)
+
+        if write_video is not None:
+            fname = pjoin(tmpdir, f"{l.name}_time{N:0>5}.jpg")
+            io.imsave(fname, l.i_source)
+            output.append({"id": l.name, "time": N, "lesion_area": l.s_disease, "leaf_area": l.leaf_area, "fname": fname})
+        else:
+            output.append({"id": l.name, "time": N, "lesion_area": l.s_disease, "leaf_area": l.leaf_area, "fname": None})
+
+    return pd.DataFrame(output)
+
+
+def infest(mpath: str, first: int = 0, last: int = 0, write_video: str | None = None, ncpu: int = 1):
     start, stop = check_arg(mpath)
 
     if first != 0 :
@@ -239,26 +312,39 @@ def infest(mpath: str, first: int = 0, last: int = 0):
 
     f2 = pjoin(mpath, "area.txt")
 
-    with open(f1, "w") as handle1, open(f2, "w") as handle2:
-        # headers
-        print("Id\ttime\tLesion", file=handle1)
-        print("Id\tArea", file=handle2)
+    measurements = defaultdict(list)
+    samples = defaultdict(list)
+
+
+    print(f"Processing images in: {mpath}")
+    with open(f1, "w") as handle, TemporaryDirectory() as tmpdir:
+        jpgs = []
         for N in range(start, stop):
-            out = ""
-            print(f'\nImage {mpath} {str(N)}.jpg -> {str(stop)}.jpg')
+            fname = pjoin(mpath, f"{N}.jpg")
+            if os.path.exists(fname):
+                jpgs.append((N, fname))
+            else:
+                print(f"WARNING: image does not exist in {mpath}")
 
-            try:
-                image = io.imread(pjoin(mpath, f"{str(N)}.jpg"))
-                p = Panel(image, 2, mpath, N)
-                for l in p.leaf_stack:
-                    l.get_disease()
-                    out = "\t".join([l.name, str(N), str(l.s_disease)])
-                    print(out, file=handle1)
-                    s = "\t".join([l.name, str(l.leaf_area)])
-                    print(s, file=handle2)
+        with Pool(ncpu) as p:
+            results = p.starmap(
+                functools.partial(process_image, mpath=mpath, write_video=write_video, tmpdir=tmpdir),
+                jpgs
+            )
 
-            except IOError:
-                print(f"Image does not exist in {mpath}")
+        print("Done!")
+
+        df = pd.concat(results)
+        df.sort_values(by=["time", "id"])
+        df.drop(columns="fname").to_csv(handle, sep="\t", header=True, index=False)
+
+        if write_video is not None:
+            print(f"Writing animation to: {write_video}")
+            os.makedirs(write_video, exist_ok=True)
+            for name, subdf in df.groupby("id"):
+                print(f"- {name}")
+                write_animation(name, subdf["lesion_area"], subdf["fname"].tolist(), write_video)
+
     return
 
 
