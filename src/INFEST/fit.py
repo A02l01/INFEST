@@ -52,6 +52,7 @@ def m_plot(qm2, df2, l):
 
 
 def main(prog: str | None = None, argv: list[str] | None = None):
+    from os.path import basename
 
     if prog is None:
         prog = sys.argv[0]
@@ -59,7 +60,7 @@ def main(prog: str | None = None, argv: list[str] | None = None):
     if argv is None:
         argv = sys.argv[1:]
 
-    parser = argparse.ArgumentParser(prog=prog)
+    parser = argparse.ArgumentParser(prog=basename(prog))
     parser.add_argument(
         "path_in",
         help="the path to the file containing temporal data computed by INFEST"

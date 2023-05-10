@@ -24,7 +24,6 @@ from os.path import join as pjoin
 from os.path import basename, splitext
 from multiprocessing import Pool
 from tempfile import TemporaryDirectory
-from collections import defaultdict
 import functools
 import datetime
 import argparse
@@ -189,7 +188,7 @@ class Panel:
 
 def write_animation(sample, time, lesion_area, leaf_area, images, where_to):
     print(f"- {sample}")
-    fig, (ax1, ax2, ax3) = plt.subplots(ncols=1, nrows=3)
+    fig, (ax1, ax2, ax3) = plt.subplots(ncols=1, nrows=3, figsize=(5, 9))
     ax1.set_axis_off()
 
     image = ax1.imshow(io.imread(images[0]))
@@ -209,8 +208,8 @@ def write_animation(sample, time, lesion_area, leaf_area, images, where_to):
         te.set_text(str(idx))
         return image, vl2, vl3, te
 
-    ani = anim.FuncAnimation(fig=fig, func=update, frames=list(zip(time, images)), interval=100)
-    ani.save(pjoin(where_to, f"{sample}.mpeg"), writer="ffmpeg")
+    ani = anim.FuncAnimation(fig=fig, func=update, frames=list(zip(time, images)), interval=200)
+    ani.save(pjoin(where_to, f"{sample}.mpeg"), writer="ffmpeg", dpi=400)
     plt.close()
     return
 
@@ -234,7 +233,7 @@ def main(prog: str | None = None, argv: list[str] | None = None):
     if argv is None:
         argv = sys.argv[1:]
 
-    parser = argparse.ArgumentParser(prog=prog)
+    parser = argparse.ArgumentParser(prog=basename(prog))
     parser.add_argument(
         "mpath",
         help="Path to the directory containing pictures"

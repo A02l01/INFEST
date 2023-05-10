@@ -75,11 +75,10 @@ setup(
     # versions of scikit-learn, so I have to keep it fixed.
     install_requires=[
         'scikit-image',
-        'pywavelets',
         'numpy',
         'scipy',
         'pandas',
-        'networkx'
+        'matplotlib'
         ],
     py_modules=[splitext(basename(path))[0] for path in glob('src/*.py')],
 

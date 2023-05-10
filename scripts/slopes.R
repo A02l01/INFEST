@@ -1,10 +1,7 @@
 library(ggplot2)
 library(ggrepel)
-#library(tidyr)
-#library(dplyr)
 library(segmented)
 library(cowplot)
-#library(progress)
 
 range_regex <- function(str) {
   re <- regexpr(
@@ -13,7 +10,7 @@ range_regex <- function(str) {
     perl = TRUE,
     ignore.case = TRUE
   )
-  return (re)
+  return(re)
 }
 
 
@@ -22,8 +19,8 @@ extract_re_matches <- function(str, re) {
     stop("Cannot extract from non-match")
   }
 
-  starts <- as.integer(unname(attr(re, "capture.start")[1,]))
-  lengths <- as.integer(unname(attr(re, "capture.length")[1,]))
+  starts <- as.integer(unname(attr(re, "capture.start")[1, ]))
+  lengths <- as.integer(unname(attr(re, "capture.length")[1, ]))
   n <- attr(re, "capture.names")
 
   s <- substring(str, starts, (starts + (lengths - 1)))
@@ -119,7 +116,7 @@ plotit <- function(
 ) {
   # Make sure we're not mutating sdf
   sdf <- data.frame(sdf)
-  if (normalize & ("leaf_area" %in% names(sdf))) {
+  if (normalize && ("leaf_area" %in% names(sdf))) {
     sdf[["lesion_area"]] <- sdf[["lesion_area"]] / sdf[["leaf_area"]]
   }
   y <- sdf[["lesion_area"]]
@@ -152,43 +149,54 @@ plotit <- function(
 
   p <- ggplot() +
     geom_point(data = sdf, aes(x = time, y = lesion_area), alpha = 0.3) +
-    geom_line(aes(x = sdf$time, y = sdf$lesion_smoothed), color = 'black') +
+    geom_line(aes(x = sdf$time, y = sdf$lesion_smoothed), color = "black") +
     theme_bw() +
-    geom_vline(xintercept = maxima, color = 'blue') +
-    geom_text_repel(aes(x = maxima, y = 0.85 * max(y), label = maxima), min.segment.length = 1) +
-    geom_vline(xintercept = zeros2, color = 'red') +
-    geom_text_repel(aes(x = zeros2, y = 0.9 * max(y), label = zeros2), min.segment.length = 1) +
-    geom_vline(xintercept = maxima2, color = 'green') +
-    geom_text_repel(aes(x = maxima2, y = 0.95 * max(y), label = maxima2), min.segment.length = 1) +
-    scale_x_continuous(breaks = better_breaks_maj, minor_breaks = better_breaks_min)
+    geom_vline(xintercept = maxima, color = "blue") +
+    geom_text_repel(
+      aes(x = maxima, y = 0.85 * max(y), label = maxima),
+      min.segment.length = 1
+    ) +
+    geom_vline(xintercept = zeros2, color = "red") +
+    geom_text_repel(
+      aes(x = zeros2, y = 0.9 * max(y), label = zeros2),
+      min.segment.length = 1
+    ) +
+    geom_vline(xintercept = maxima2, color = "green") +
+    geom_text_repel(
+      aes(x = maxima2, y = 0.95 * max(y), label = maxima2),
+      min.segment.length = 1
+    ) +
+    scale_x_continuous(
+      breaks = better_breaks_maj,
+      minor_breaks = better_breaks_min
+    )
 
   if (!is.null(midpoint)) {
-    p <- p + geom_vline(xintercept = midpoint, color = 'orange') +
+    p <- p + geom_vline(xintercept = midpoint, color = "orange") +
       geom_text_repel(aes(
         x = midpoint,
         y = 0.70 * max(sdf$y, na.rm = TRUE),
         label = midpoint
       ))
   }
+
   if (!is.null(sample)) {
     p <- p + ggtitle(sample)
   }
 
-  if (normalize & ("leaf_area" %in% names(sdf))) {
+  if (normalize && ("leaf_area" %in% names(sdf))) {
     p <- p + ylab("lesion_area / leaf_area")
   }
   return(p)
 }
 
-df <- read.table("input/tray1/analyse.txt", header = TRUE)
-#df["lesion_area"] <- df["lesion_area"] / df["leaf_area"]
 
 split_with_overlap <- function(vec, size, step = 1) {
-  starts = seq(1, length(vec) - size, by = step)
-  ends   = starts + size - 1
-  ends[ends > length(vec)] = length(vec)
+  starts <- seq(1, length(vec) - size, by = step)
+  ends <- starts + size - 1
+  ends[ends > length(vec)] <- length(vec)
 
-  li <- lapply(1:length(starts), function(i) vec[starts[i]:ends[i]])
+  li <- lapply(seq_along(starts), function(i) vec[starts[i]:ends[i]])
   return(li)
 }
 
@@ -199,26 +207,27 @@ find_local_maxima <- function(
   min_block = 5,
   minima = FALSE
 ) {
-  positions <- list()
   fwd_filter <- c(FALSE, rep(TRUE, min_block))
-  ref_filter <- c(rep(TRUE, min_block), FALSE)
 
   if (minima) {
     arr_thresholded <- arr < tolerance
   } else {
     arr_thresholded <- arr > tolerance
   }
-  arr_split <- split_with_overlap(arr_thresholded, size=min_block + 1)
-  rev_arr_split <- split_with_overlap(rev(arr_thresholded), size=min_block + 1)
+  arr_split <- split_with_overlap(arr_thresholded, size = min_block + 1)
+  rev_arr_split <- split_with_overlap(
+    rev(arr_thresholded),
+    size = min_block + 1
+  )
   fwd <- which(vapply(
     arr_split,
     FUN.VALUE = TRUE,
-    FUN = function(li) {all(li == fwd_filter)}
+    FUN = function(li) all(li == fwd_filter)
   ))
   rev_ <- which(rev(vapply(
     rev_arr_split,
     FUN.VALUE = TRUE,
-    FUN = function(li) {all(li == fwd_filter)}
+    FUN = function(li) all(li == fwd_filter)
   )))
   len <- min(c(length(fwd), length(rev_)))
   if (len < 1) {
@@ -230,13 +239,13 @@ find_local_maxima <- function(
     maxima <- apply(
       coords,
       MARGIN = 1,
-      FUN = function(x) {x[1] + which.min(arr[x[1]:x[2]])}
+      FUN = function(x) x[1] + which.min(arr[x[1]:x[2]])
     )
   } else {
     maxima <- apply(
       coords,
       MARGIN = 1,
-      FUN = function(x) {x[1] + which.max(arr[x[1]:x[2]])}
+      FUN = function(x) x[1] + which.max(arr[x[1]:x[2]])
     )
   }
   return(maxima)
@@ -267,7 +276,7 @@ overlaps_zero <- function(arr, zero = 0.0, direction = "both") {
 find_initial_slope <- function(df, span, normalize = FALSE) {
   # Make sure we're not mutating sdf
   df <- data.frame(df)
-  if (normalize & ("leaf_area" %in% names(df))) {
+  if (normalize && ("leaf_area" %in% names(df))) {
     df[["lesion_area"]] <- df[["lesion_area"]] / df[["leaf_area"]]
   }
 
@@ -353,11 +362,13 @@ compute_slope <- function(df, myfile, span = 60, plot_normalized = TRUE) {
   nsamples <- length(samples)
 
   if (file.exists(myfile)) {
-    deja = read.table(
+    deja <- read.table(
       myfile,
-      sep = '\t',
+      sep = "\t",
       header = FALSE,
-      col.names = c("id", "slope", "decision", "range_start", "psi", "range_end")
+      col.names = c(
+        "id", "slope", "decision", "range_start", "psi", "range_end"
+      )
     )
     samples <- setdiff(samples, deja[["id"]])
     i <- nsamples - length(samples) + 1
@@ -370,11 +381,11 @@ compute_slope <- function(df, myfile, span = 60, plot_normalized = TRUE) {
     uy <- samples[i]
 
     print(sprintf("Processing samples %s: %d of %d", uy, i, nsamples))
-    sdf = subset(df, subset = (df$id == uy))
+    sdf <- subset(df, subset = (df$id == uy))
 
     init_slope <- find_initial_slope(sdf, span)
 
-    sdf$lesion_smoothed = init_slope$mfit$y
+    sdf$lesion_smoothed <- init_slope$mfit$y
     suppressWarnings(suppressMessages(
       p <- plotit(sdf, midpoint = init_slope$max, sample = uy, bandwidth = span)
     ))
@@ -383,7 +394,7 @@ compute_slope <- function(df, myfile, span = 60, plot_normalized = TRUE) {
 
       init_slope2 <- find_initial_slope(sdf, span, normalize = TRUE)
 
-      sdf$lesion_smoothed = init_slope2$mfit$y
+      sdf$lesion_smoothed <- init_slope2$mfit$y
       suppressWarnings(suppressMessages({
         p2 <- plotit(
           sdf,
@@ -391,7 +402,7 @@ compute_slope <- function(df, myfile, span = 60, plot_normalized = TRUE) {
           bandwidth = span,
           normalize = TRUE
         )
-        p <- plot_grid(p, p2, nrow = 2, ncol = 1, align = "hv") 
+        p <- plot_grid(p, p2, nrow = 2, ncol = 1, align = "hv")
       }))
     }
 
@@ -401,39 +412,43 @@ compute_slope <- function(df, myfile, span = 60, plot_normalized = TRUE) {
     minmax <- get_minmax()
 
     if (is.list(minmax)) {
-      sdf = subset(
+      sdf <- subset(
         sdf,
-        subset = ((sdf$id == uy) & (sdf$time > minmax$min) & (sdf$time < minmax$max))
+        subset = (
+          (sdf$id == uy) &
+          (sdf$time > minmax$min) &
+          (sdf$time < minmax$max)
+        )
       )
-      x = sdf$time
-      y = log(sdf$lesion_area + 1E-9)
+      x <- sdf$time
+      y <- log(sdf$lesion_area + 1E-9)
       y[which(y == -Inf)] <- NA
 
       if (is.na(sum(y)) != TRUE) {
         for (jj in 1:1) {
-          out.lm = lm(y ~ x)
-          o <- segmented(out.lm, seg.Z = ~ x)
+          out_lm <- lm(y ~ x)
+          o <- segmented(out_lm, seg.Z = ~ x)
           fit <- numeric(length(x)) * NA
           fit[complete.cases(rowSums(cbind(y, x)))] <- broken.line(o)$fit
-          if(jj == 1){
-            val = sd(o$residuals)
+          if (jj == 1) {
+            val <- sd(o$residuals)
             y[which(o$residuals > val | o$residuals < -val)] <- NA
           }
         }
 
         data1 <- data.frame(x = x, y = y, fit = fit)
-        res = slope(o)
+        res <- slope(o)
 
         breakpoint <- round(o$psi[[2]], 0)
         suppressWarnings(suppressMessages({
           p1 <- ggplot() +
             geom_point(
-              data = sdf[sdf$lesion_area > 1,],
+              data = sdf[sdf$lesion_area > 1, ],
               aes(x = time, y = log(lesion_area + 1E-9)),
-              alpha=0.3
+              alpha = 0.3
             ) +
-            geom_line(data = data1, aes(x = x, y = y), color="black") +
-            geom_line(aes(x = x, y = fit), color="steelblue") +
+            geom_line(data = data1, aes(x = x, y = y), color = "black") +
+            geom_line(aes(x = x, y = fit), color = "steelblue") +
             theme_bw() +
             geom_vline(xintercept = o$psi[[2]], color = "red") +
             geom_text_repel(
@@ -444,13 +459,17 @@ compute_slope <- function(df, myfile, span = 60, plot_normalized = TRUE) {
               ),
               min.segment.length = 1
             ) +
-            ggtitle(paste(uy, res$x[2,1], sep = " "))
+            ggtitle(paste(uy, res$x[2, 1], sep = " "))
 
           p2 <- ggplot() +
             geom_line(data = data1, aes(x = x, y = exp(y)), alpha = 0.3) +
-            geom_point(data = sdf, aes(x = time, y = lesion_area), alpha = 0.3) +
+            geom_point(
+              data = sdf,
+              aes(x = time, y = lesion_area),
+              alpha = 0.3
+            ) +
             theme_bw() +
-            geom_vline(xintercept = o$psi[[2]], color="red") +
+            geom_vline(xintercept = o$psi[[2]], color = "red") +
             geom_text_repel(
               aes(
                 x = o$psi[[2]],
@@ -459,7 +478,7 @@ compute_slope <- function(df, myfile, span = 60, plot_normalized = TRUE) {
               ),
               min.segment.length = 1
             )
-          p <- plot_grid(p1, p2, ncol=2, nrow=1, align="hv")
+          p <- plot_grid(p1, p2, ncol = 2, nrow = 1, align = "hv")
         }))
 
         print(p)
@@ -467,22 +486,22 @@ compute_slope <- function(df, myfile, span = 60, plot_normalized = TRUE) {
         answer <- get_check_ok()
 
         if (answer != "r") {
-          line = paste(
+          line <- paste(
             uy,
-            res$x[2,1],
+            res$x[2, 1],
             answer,
             minmax$min,
             o$psi[[2]],
             minmax$max,
             sep = "\t"
           )
-          write(line, file=myfile, append=TRUE)
-          i = i + 1
+          write(line, file = myfile, append = TRUE)
+          i <- i + 1
         }
       }
     } else if (minmax == "s") {
-      line = paste(uy, NA, "s", NA, NA, NA, sep="\t")
-      i = i + 1
+      line <- paste(uy, NA, "s", NA, NA, NA, sep = "\t")
+      i <- i + 1
       write(line, file = myfile, append = TRUE)
     }
   }
