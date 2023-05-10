@@ -187,26 +187,29 @@ class Panel:
         temp = self.i_original
         return temp
 
-def write_animation(sample, data, images, where_to):
-
-    fig, (ax1, ax2) = plt.subplots(ncols=1, nrows=2)
+def write_animation(sample, time, lesion_area, leaf_area, images, where_to):
+    print(f"- {sample}")
+    fig, (ax1, ax2, ax3) = plt.subplots(ncols=1, nrows=3)
     ax1.set_axis_off()
 
     image = ax1.imshow(io.imread(images[0]))
-    lesion = ax2.scatter(x=np.arange(len(data)), y=data, s=10, marker="o", alpha=0.5)
+    ax2.scatter(x=time, y=lesion_area, s=10, marker="o", alpha=0.5)
+    ax3.scatter(x=time, y=lesion_area / leaf_area, s=10, marker="o", alpha=0.5)
 
-    vl = ax2.axvline(x=0, c="red")
-    te = ax2.text(len(data), 0, "0", verticalalignment="bottom", horizontalalignment="right")
+    vl2 = ax2.axvline(x=0, c="red")
+    vl3 = ax3.axvline(x=0, c="red")
+    te = ax2.text(len(lesion_area), 0, "0", verticalalignment="bottom", horizontalalignment="right")
 
     def update(frame):
         idx, fname = frame
         i = io.imread(fname)
         image.set_data(i)
-        vl.set_xdata([idx])
+        vl2.set_xdata([idx])
+        vl3.set_xdata([idx])
         te.set_text(str(idx))
-        return image, vl, te
+        return image, vl2, vl3, te
 
-    ani = anim.FuncAnimation(fig=fig, func=update, frames=list(enumerate(images)), interval=100)
+    ani = anim.FuncAnimation(fig=fig, func=update, frames=list(zip(time, images)), interval=100)
     ani.save(pjoin(where_to, f"{sample}.mpeg"), writer="ffmpeg")
     plt.close()
     return
@@ -310,11 +313,6 @@ def infest(mpath: str, first: int = 0, last: int = 0, write_video: str | None = 
         date_now = datetime.date.today().strftime("%Y%m%d")
         f1 = pjoin(mpath, f"analyse_{date_now}.txt")
 
-    f2 = pjoin(mpath, "area.txt")
-
-    measurements = defaultdict(list)
-    samples = defaultdict(list)
-
 
     print(f"Processing images in: {mpath}")
     with open(f1, "w") as handle, TemporaryDirectory() as tmpdir:
@@ -341,9 +339,19 @@ def infest(mpath: str, first: int = 0, last: int = 0, write_video: str | None = 
         if write_video is not None:
             print(f"Writing animation to: {write_video}")
             os.makedirs(write_video, exist_ok=True)
+            jobs = []
             for name, subdf in df.groupby("id"):
-                print(f"- {name}")
-                write_animation(name, subdf["lesion_area"], subdf["fname"].tolist(), write_video)
+                jobs.append((
+                    name,
+                    subdf["time"],
+                    subdf["lesion_area"],
+                    subdf["leaf_area"],
+                    subdf["fname"].tolist(),
+                    write_video
+                ))
+
+            with Pool(ncpu) as p:
+                p.starmap(write_animation, jobs)
 
     return
 
