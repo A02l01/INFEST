@@ -30,6 +30,10 @@ optional arguments:
   -w DIR, --write-video DIR Write animations of each leaf to this directory.
                             Default: don't write animations.
   -n INT, --ncpu INT    How many cpus can we use? Default 1.
+  -d DPI, --dpi DPI     If writing a video, what resolution should it have? Default 300.
+  -s FRAMESTEP, --framestep FRAMESTEP
+                        If writing a video, how many milliseconds should each image be displayed for.
+                        E.g. framestep=100 (default) means 10 images will be displayed per second.
 ```
 
 #### Output
@@ -55,7 +59,7 @@ infest.py mpath --write-video mpath_animations --ncpu 4
 ### fit INFEST
 
 > **NOTE:** This method is no longer used in practise.
-> Prefer to use the R script stored in `scripts/slopes.R`
+> You should probably use the R script stored in [`scripts/slopes.R`](#using-the-r-script)
 
 ```
 usage: infest-fit [-h] [-ft FIRST] [-g] path_in path_out
@@ -336,12 +340,14 @@ install.packages(c("ggplot2", "ggrepel", "segmented", "cowplot"))
 To use the script, you can download it locally:
 
 ```
-curl -o infest_slopes.R https://raw.githubusercontent.com/darcyabjones/INFEST/master/scripts/slopes.R
+curl -o slopes.R https://raw.githubusercontent.com/darcyabjones/INFEST/master/scripts/slopes.R
 ```
 
 Now open an interactive R terminal (e.g. Rstudio), and `source` this script to use the main function `compute_slope`.
 
 ```r
+source("slopes.R")
+
 # Load your data
 df <- read.table("./picture/analyse.txt", header = TRUE)
 
