@@ -186,18 +186,36 @@ class Panel:
         temp = self.i_original
         return temp
 
-def write_animation(sample, time, lesion_area, leaf_area, images, where_to):
+def write_animation(
+    sample,
+    time,
+    lesion_area,
+    leaf_area,
+    images,
+    where_to,
+    dpi=300,
+    framerate=100,
+):
     print(f"- {sample}")
-    fig, (ax1, ax2, ax3) = plt.subplots(ncols=1, nrows=3, figsize=(5, 9))
-    ax1.set_axis_off()
+    fig, (ax1, ax2, ax3) = plt.subplots(ncols=1, nrows=3, figsize=(6, 9))
 
-    image = ax1.imshow(io.imread(images[0]))
+    ax1.set_axis_off()
+    image = ax1.imshow(io.imread(images[0]), interpolation=None)
+
     ax2.scatter(x=time, y=lesion_area, s=10, marker="o", alpha=0.5)
-    ax3.scatter(x=time, y=lesion_area / leaf_area, s=10, marker="o", alpha=0.5)
+    ax2.set_ylabel("Lesion area", fontsize=10)
+    ax3.scatter(x=time, y=leaf_area, s=10, marker="o", alpha=0.5)
+    ax3.set_ylabel("Leaf area", fontsize=10)
+    ax3.set_xlabel("Time", fontsize=10)
 
     vl2 = ax2.axvline(x=0, c="red")
     vl3 = ax3.axvline(x=0, c="red")
     te = ax2.text(len(lesion_area), 0, "0", verticalalignment="bottom", horizontalalignment="right")
+    fig.subplots_adjust(hspace = 0, wspace = 0)
+
+    fig.suptitle(sample, fontsize=10, horizontalalignment="left")
+
+    plt.tight_layout(pad=0.1)
 
     def update(frame):
         idx, fname = frame
@@ -208,8 +226,14 @@ def write_animation(sample, time, lesion_area, leaf_area, images, where_to):
         te.set_text(str(idx))
         return image, vl2, vl3, te
 
-    ani = anim.FuncAnimation(fig=fig, func=update, frames=list(zip(time, images)), interval=200)
-    ani.save(pjoin(where_to, f"{sample}.mpeg"), writer="ffmpeg", dpi=400)
+    ani = anim.FuncAnimation(
+        fig=fig,
+        func=update,
+        frames=list(zip(time, images)),
+        interval=framerate,
+        repeat=True
+    )
+    ani.save(pjoin(where_to, f"{sample}.mpeg"), writer="ffmpeg", dpi=dpi)
     plt.close()
     return
 
@@ -264,8 +288,29 @@ def main(prog: str | None = None, argv: list[str] | None = None):
         help="How many images to process in parallel.",
         default=1
     )
+    parser.add_argument(
+        "-d", "--dpi",
+        type=int,
+        help="If writing a video, what resolution should it have?",
+        default=1
+    )
+    parser.add_argument(
+        "-s", "--framestep",
+        type=int,
+        help=(
+            "If writing a video, how many milliseconds should each image be displayed for. "
+            "E.g. framestep=100 (default) means 10 images will be displayed per second."
+        ),
+        default=100
+    )
     args = parser.parse_args(argv)
-    infest(mpath=args.mpath, first=args.first, last=args.last, write_video=args.write_video, ncpu=args.ncpu)
+    infest(
+        mpath=args.mpath,
+        first=args.first,
+        last=args.last,
+        write_video=args.write_video,
+        ncpu=args.ncpu
+    )
     return
 
 
@@ -275,6 +320,7 @@ def process_image(
     mpath: str,
     write_video: str | None,
     tmpdir: str,
+    dpi: int = 300,
 ):
     print(f'- processing image {fname}')
 
@@ -283,22 +329,34 @@ def process_image(
     p = Panel(image, 2, mpath, N)
     for l in p.leaf_stack:
         l.get_disease()
-        # out = "\t".join([l.name, str(N), str(l.s_disease)])
-        # print(out, file=handle1)
-        # s = "\t".join([l.name, str(N), str(l.leaf_area)])
-        # print(s, file=handle2)
+
+        record = {
+            "id": l.name,
+            "time": N,
+            "lesion_area": l.s_disease,
+            "leaf_area": l.leaf_area,
+            "fname": None
+        }
 
         if write_video is not None:
             fname = pjoin(tmpdir, f"{l.name}_time{N:0>5}.jpg")
-            io.imsave(fname, l.i_source)
-            output.append({"id": l.name, "time": N, "lesion_area": l.s_disease, "leaf_area": l.leaf_area, "fname": fname})
-        else:
-            output.append({"id": l.name, "time": N, "lesion_area": l.s_disease, "leaf_area": l.leaf_area, "fname": None})
+            l.plot_result(path=fname, dpi=dpi)
+            record["fname"] = fname
+
+        output.append(record)
 
     return pd.DataFrame(output)
 
 
-def infest(mpath: str, first: int = 0, last: int = 0, write_video: str | None = None, ncpu: int = 1):
+def infest(
+    mpath: str,
+    first: int = 0,
+    last: int = 0,
+    write_video: str | None = None,
+    ncpu: int = 1,
+    dpi: int = 300,
+    framerate: int = 100
+):
     start, stop = check_arg(mpath)
 
     if first != 0 :
@@ -345,12 +403,18 @@ def infest(mpath: str, first: int = 0, last: int = 0, write_video: str | None = 
                     subdf["time"],
                     subdf["lesion_area"],
                     subdf["leaf_area"],
-                    subdf["fname"].tolist(),
-                    write_video
+                    subdf["fname"].tolist()
                 ))
 
+            wa = functools.partial(
+                write_animation,
+                where_to=write_video,
+                dpi=dpi,
+                framerate=framerate
+            )
+
             with Pool(ncpu) as p:
-                p.starmap(write_animation, jobs)
+                p.starmap(wa, jobs)
 
     return
 

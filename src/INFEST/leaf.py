@@ -31,7 +31,6 @@ class Leaf:
         out = []
         fill = im[:,:,0].copy()
         label_image = label(fill)
-        # image_label_overlay = label2rgb(label_image, image=im)
 
         for region in regionprops(label_image):
             minr, minc, maxr, maxc = region.bbox
@@ -41,13 +40,18 @@ class Leaf:
         for ii in range(0,len(re)):
             for jj in range(0,len(re)):
                 if jj != ii :
-                    if (re[ii][0]>re[jj][0]) & (re[ii][2]<re[jj][2]) & (re[ii][1]>re[jj][1]) & (re[ii][3]<re[jj][3]) :
+                    if (
+                        (re[ii][0] > re[jj][0]) &
+                        (re[ii][2] < re[jj][2]) &
+                        (re[ii][1] > re[jj][1]) &
+                        (re[ii][3] < re[jj][3])
+                    ):
                         out.pop(out.index(re[ii]))
                         for i in range(re[ii][0],re[ii][2]):
                             for j in range(re[ii][1],re[ii][3]):
                                 if (im[i,j,0] == 255) :
-                                    im[i,j,0]=0
-                                    im[i,j,2]=255
+                                    im[i,j,0] = 0
+                                    im[i,j,2] = 255
                         break
         return im
 
@@ -90,6 +94,7 @@ class Leaf:
 
         # Fill gap due to plugs
         self.i_disease = self.fill_hole(res)
+        return
 
 
     def get_mean(self, inp):
@@ -98,30 +103,30 @@ class Leaf:
             tab.append(region.area)
         return np.mean(tab), np.std(tab)
 
-    def plot_result(self, s, path, sho):
+    def plot_result(self, path=None, show=False, dpi=300):
 
-        fig, ((ax1,ax3,ax4,ax5)) = plt.subplots(ncols=1, nrows=4)
-        plt.subplots_adjust( hspace=0)
-        ##
+        if (path is None) and not show:
+            raise ValueError("Either path or show must be specified, otherwise we're not doing anything")
+
+        fig, (ax1, ax2, ax3) = plt.subplots(
+            ncols=3,
+            nrows=1,
+            figsize=(3, 9),
+        )
         ax1.imshow(self.i_source)
         ax1.axis('off')
-        ax1.text(0,10,"Original "+self.name, fontsize=15, color='Black')
-        ##
-        ax3.axis('off')
-        ax3.text(0,10,"Disease ", fontsize=15, color='White')
-        ax3.imshow(self.i_disease[:, :, 2], cmap='inferno', alpha=0.9)
-        ##
-        ax4.axis('off')
-        ax4.text(0, 10, "Background ", fontsize=15, color='Black')
-        ax4.imshow(np.multiply(self.i_disease[:,:,0], self.i_source[:,:,1]), cmap='inferno', alpha=0.9)
-        ##
-        ax5.axis('off')
-        ax5.text(0, 10, "Leaf ", fontsize=15, color='White')
-        ax5.imshow(np.multiply(self.i_disease[:, :, 1], self.i_source[:, :, 1]), cmap='inferno', alpha=0.9)
 
-        if s == True:
-            plt.savefig(path, transparent=True)
-        if sho == True:
+        ax2.axis('off')
+        ax2.text(0, 10, "Disease ", fontsize=6, color='White', verticalalignment="top")
+        ax2.imshow(self.i_disease[:, :, 2], cmap='inferno', alpha=0.9)
+
+        ax3.axis('off')
+        ax3.text(0, 10, "Leaf ", fontsize=6, color='White', verticalalignment="top")
+        ax3.imshow(np.multiply(self.i_disease[:, :, 1], self.i_source[:, :, 1]), cmap='inferno', alpha=0.9)
+
+        if path is not None:
+            plt.savefig(path, transparent=True, dpi=dpi, bbox_inches='tight', pad_inches=0)
+        if show == True:
             plt.show()
 
         plt.close(fig)
@@ -133,4 +138,4 @@ if __name__ == '__main__':
         image_inp = io.imread("./sample/" + s)
         l = Leaf(image_inp, s, 1)
         l.get_disease()
-        l.plot_result(False, "test", True)
+        l.plot_result(path="test.jpg", show=True)
