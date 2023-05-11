@@ -57,7 +57,17 @@ get_minmax <- function() {
     } else if (r) {
       minmax <- extract_re_matches(minmax, r)
       minmax <- lapply(minmax, FUN = as.integer)
-      success <- TRUE
+      if (minmax$min >= minmax$max) {
+        print(sprintf(
+          "Your minimum value %d was greater than your maximum value %d.",
+          minmax$min,
+          minmax$max
+        ))
+        print("Please try again")
+        success <- FALSE
+      } else {
+        success <- TRUE
+      }
     } else {
       print("Sorry, you entered an unsupported option.")
     }
@@ -171,13 +181,16 @@ plotit <- function(
       minor_breaks = better_breaks_min
     )
 
-  if (!is.null(midpoint)) {
+  if (!is.null(midpoint) & (length(midpoint) > 0)) {
     p <- p + geom_vline(xintercept = midpoint, color = "orange") +
-      geom_text_repel(aes(
-        x = midpoint,
-        y = 0.70 * max(sdf$y, na.rm = TRUE),
-        label = midpoint
-      ))
+      geom_text_repel(
+        aes(
+          x = midpoint,
+          y = 0.70 * max(sdf$y, na.rm = TRUE),
+          label = midpoint
+        ),
+        min.segment.length = 1
+      )
   }
 
   if (!is.null(sample)) {
@@ -282,9 +295,9 @@ find_initial_slope <- function(df, span, normalize = FALSE) {
 
   mm <- max(df[["lesion_area"]]) * 0.5
   mm <- (max(df[["lesion_area"]]) - min(df[["lesion_area"]])) * 0.5
-  ts <- df[["t"]][which.max(abs(df[["lesion_area"]]))]
+  ts <- df[["time"]][which.max(abs(df[["lesion_area"]]))]
   ssd <- subset(df, subset = (df[["time"]] < ts))
-  max_ <- ssd$t[which.min(abs(ssd[["lesion_area"]] - mm))]
+  max_ <- ssd$time[which.min(abs(ssd[["lesion_area"]] - mm))]
   mfit <- ksmooth(
     df[["time"]],
     df[["lesion_area"]],
