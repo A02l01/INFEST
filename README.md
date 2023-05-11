@@ -47,12 +47,12 @@ If `--write-video` is given a directory, mpeg videos will be written to that dir
 
 ```
 # Processes images between 0 and 400.
-infest.py mpath -f 0 -l 400
+infest mpath -f 0 -l 400
 # Same as above
-infest.py mpath -l 400
+infest mpath -l 400
 
 # Write animations and use 4 cpus.
-infest.py mpath --write-video mpath_animations --ncpu 4
+infest mpath --write-video mpath_animations --ncpu 4
 ```
 
 
@@ -236,7 +236,6 @@ unzip INFEST.zip
 # If you want to be able to edit the package and have changes work immediately you can also specify `-e` or `--editable`
 python3 -m pip install ./INFEST/
 ```
-
 
 
 ### Pictures & Files
