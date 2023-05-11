@@ -194,7 +194,7 @@ def write_animation(
     images,
     where_to,
     dpi=300,
-    framerate=100,
+    framestep=100,
 ):
     print(f"- {sample}")
     fig, (ax1, ax2, ax3) = plt.subplots(ncols=1, nrows=3, figsize=(6, 9))
@@ -230,7 +230,7 @@ def write_animation(
         fig=fig,
         func=update,
         frames=list(zip(time, images)),
-        interval=framerate,
+        interval=framestep,
         repeat=True
     )
     ani.save(pjoin(where_to, f"{sample}.mpeg"), writer="ffmpeg", dpi=dpi)
@@ -292,7 +292,7 @@ def main(prog: str | None = None, argv: list[str] | None = None):
         "-d", "--dpi",
         type=int,
         help="If writing a video, what resolution should it have?",
-        default=1
+        default=300,
     )
     parser.add_argument(
         "-s", "--framestep",
@@ -309,7 +309,8 @@ def main(prog: str | None = None, argv: list[str] | None = None):
         first=args.first,
         last=args.last,
         write_video=args.write_video,
-        ncpu=args.ncpu
+        ncpu=args.ncpu,
+        framestep=args.framestep,
     )
     return
 
@@ -355,7 +356,7 @@ def infest(
     write_video: str | None = None,
     ncpu: int = 1,
     dpi: int = 300,
-    framerate: int = 100
+    framestep: int = 100
 ):
     start, stop = check_arg(mpath)
 
@@ -410,7 +411,7 @@ def infest(
                 write_animation,
                 where_to=write_video,
                 dpi=dpi,
-                framerate=framerate
+                framestep=framestep
             )
 
             with Pool(ncpu) as p:

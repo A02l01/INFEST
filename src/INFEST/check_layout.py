@@ -52,10 +52,19 @@ def main(prog: str | None = None, argv: list[str] | None = None):
         default=None
     )
     parser.add_argument(
-        "--dpi",
-        help="What resolution to save the image as.",
-        default=400,
-        type=int
+        "-d", "--dpi",
+        type=int,
+        help="What resolution should the image have? Default: 300",
+        default=300,
+    )
+    parser.add_argument(
+        "-s", "--framestep",
+        type=int,
+        help=(
+            "If writing a video, how many milliseconds should each image be displayed for. "
+            "E.g. framestep=100 (default) means 10 images will be displayed per second."
+        ),
+        default=100
     )
 
     args = parser.parse_args(argv)
@@ -89,7 +98,9 @@ def main(prog: str | None = None, argv: list[str] | None = None):
         check_layout_anim(
             args.layout,
             args.images,
-            outfile
+            outfile,
+            args.dpi,
+            args.framestep
         )
 
     else:
@@ -164,7 +175,13 @@ def check_file(string: str) -> int | None:
         return None
 
 
-def check_layout_anim(layout: str, images: list[str], outfile: str, dpi: int = 400):
+def check_layout_anim(
+    layout: str,
+    images: list[str],
+    outfile: str,
+    dpi: int = 300,
+    framestep: int = 100
+):
     fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(6, 6))
 
     images_dirty = [(check_file(f), f) for f in images]
@@ -201,7 +218,7 @@ def check_layout_anim(layout: str, images: list[str], outfile: str, dpi: int = 4
         img.set_data(io.imread(fname))
         return img
 
-    ani = anim.FuncAnimation(fig=fig, func=update, frames=images, interval=200)
+    ani = anim.FuncAnimation(fig=fig, func=update, frames=images, interval=framestep)
     ani.save(outfile, writer="ffmpeg", dpi=dpi)
     plt.close()
     return

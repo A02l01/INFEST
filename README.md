@@ -99,10 +99,18 @@ options:
   -h, --help            show this help message and exit
   -a, --animate         Should we write the output as an mpeg?
   -o OUTFILE, --outfile OUTFILE
-                        Where to save the output file(s) to. If multiple images are provided, this should be a directory. If you specify multiple images and the --animate option, this should be the mpeg filename. If a single image is given, this should be the jpeg filename.
+                        Where to save the output file(s) to.
+                        If multiple images are provided, this should be a directory.
+                        If you specify multiple images and the --animate option,
+                        this should be the mpeg filename.
+                        If a single image is given, this should be the jpeg filename.
                         Default: grid_layout/panel.jpg, grid_layout/panel/{0..1}.jpg, grid_layout/panel.mpeg
-  --dpi DPI             What resolution to save the image as.
+  -d DPI, --dpi DPI     What resolution should the image have? Default: 300
+  -s FRAMESTEP, --framestep FRAMESTEP
+                        If writing a video, how many milliseconds should each image be displayed for.
+                        E.g. framestep=100 (default) means 10 images will be displayed per second.
 ```
+
 
 #### Output
 
