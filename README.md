@@ -81,6 +81,45 @@ optional arguments:
 
 A txt file specified in `path_out` directory containing 9 columns: the **Id** of leaf, the parameters **a1** to **a5** resulting from the fit, the **residuals** of the fit, the lesion doubling time **LDT**, and the **Latency**
 
+
+### Normalise background colour
+
+Lighting conditions can significantly effect the colour balance of images between time points.
+To improve consistency we normalise the colour balance to an approximate known white background.
+
+This script automatically finds the white background (i.e. paper towel/tissue paper on which the leaves are placed), 
+and recalibrates the image to have a more normal colour balance.
+
+By default, this recalibration applies non-uniformly across the image.
+It is common, for example, for growth lights to illuminate the center of the nauvitron more than the edges.
+Normalising to a single value typically causes the center to be saturated and the edges to be a bit too dark.
+Instead, we find mean colour balances in a non-overlapping grid, and interpolate the what the expected values of the white background would have been behind the leaves using a gaussian process regressor (which simultaneously smoothes the signal).
+Finally, a strong gaussian blur is applied to avoid issues associated with the hard edges from the non-overlapping grid.
+
+You can apply a uniform recalibration by supplying the `--uniform` parameter.
+This gives reasonable results and is much faster.
+
+```
+usage: infest-norm [-h] [-o OUTDIR] [-u] [-g GRIDSIZE] [-s SIGMA] [-n NITER] images [images ...]
+
+positional arguments:
+  images                The path to the image you want to overlay the layout onto.
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTDIR, --outdir OUTDIR
+                        Where to save the output file(s) to.
+  -u, --uniform         Instead of applying region specific normalisation, normalise by average background
+  -g GRIDSIZE, --gridsize GRIDSIZE
+                        How big should the grid be? NOTE: Smaller values use more memory. Default: 100
+  -s SIGMA, --sigma SIGMA
+                        The sigma value for gaussian blurring. Default: 5.
+  -n NITER, --niter NITER
+                        How many iterations of blurring should the background interpolation have?
+                        NOTE: This needs to increase if gridsize is increased. Default: 5
+```
+
+
 ### Check layout
 
 Check that your bounding boxes in the layout actually cover the leaves.

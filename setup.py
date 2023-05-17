@@ -108,6 +108,7 @@ setup(
             'infest=INFEST.infest:main',
             'infest-check-layout=INFEST.check_layout:main',
             'infest-fit=INFEST.fit:main',
+            'infest-norm=INFEST.norm_colours:main'
         ],
     },
 )

@@ -57,7 +57,7 @@ class Panel:
             os.makedirs(pjoin(self.path, 'grid_layout'), exist_ok=True)
             print("grid_layout directory has been created")
         else:
-            out = os.path.isfile(pjoin(self.path, 'grid_layout/grid_layout.layout'))
+            out = os.path.isfile(pjoin(self.path, 'grid_layout', 'grid_layout.layout'))
         if out == False:
             print("No layout found !\nPlease create a file 'grid_layout.layout' in\n"+ pjoin(self.path, "grid_layout"))
             sys.exit()
@@ -186,30 +186,123 @@ class Panel:
         temp = self.i_original
         return temp
 
+
 def write_animation(
     sample,
     time,
     lesion_area,
     leaf_area,
+    ichloro,
+    images_orig,
+    images_lesion,
+    images_leaf,
+    images_ichloro,
+    where_to,
+    dpi=300,
+    framestep=100,
+):
+    print(f"- {sample}")
+    fig, axs = plt.subplots(
+        ncols=2,
+        nrows=4,
+        figsize=(9, 9),
+        width_ratios=[2, 1],
+        sharex=False,
+    )
+
+    axs[0, 0].set_axis_off()
+    axs[0, 0].text(0, 1, sample, fontsize=10, horizontalalignment="left")
+    te = axs[0, 0].text(0, 0.5, "0", verticalalignment="bottom", horizontalalignment="right")
+
+    axs[0, 1].set_axis_off()
+    image_orig = axs[0, 1].imshow(io.imread(images_orig[0]), interpolation=None)
+
+    axs[1, 0].scatter(x=time, y=lesion_area, s=10, marker="o", alpha=0.5)
+    axs[1, 0].set_ylabel("Lesion area", fontsize=10)
+    axs[1, 0].xaxis.set_ticklabels([])
+
+    axs[1, 1].set_axis_off()
+    image_lesion = axs[1, 1].imshow(io.imread(images_lesion[0]), interpolation=None)
+
+    axs[2, 0].scatter(x=time, y=leaf_area, s=10, marker="o", alpha=0.5)
+    axs[2, 0].set_ylabel("Leaf area", fontsize=10)
+    axs[2, 0].xaxis.set_ticklabels([])
+
+    axs[2, 1].set_axis_off()
+    image_leaf = axs[2, 1].imshow(io.imread(images_leaf[0]), interpolation=None)
+
+    axs[3, 0].scatter(x=time, y=ichloro, s=10, marker="o", alpha=0.5)
+    axs[3, 0].set_ylabel("ichloro sum", fontsize=10)
+    axs[3, 0].set_xlabel("Time", fontsize=10)
+
+    axs[3, 1].set_axis_off()
+    image_ichloro = axs[3, 1].imshow(io.imread(images_ichloro[0]), interpolation=None)
+
+    vl2 = axs[1, 0].axvline(x=0, c="red")
+    vl3 = axs[2, 0].axvline(x=0, c="red")
+    vl4 = axs[3, 0].axvline(x=0, c="red")
+
+    plt.tight_layout(pad=0.1)
+
+    def update(frame):
+        idx, orig, lesion_, leaf_, ichloro_ = frame
+        image_orig.set_data(io.imread(orig))
+        image_lesion.set_data(io.imread(lesion_))
+        image_leaf.set_data(io.imread(leaf_))
+        image_ichloro.set_data(io.imread(ichloro_))
+
+        vl2.set_xdata([idx])
+        vl3.set_xdata([idx])
+        vl4.set_xdata([idx])
+        te.set_text(str(idx))
+        return image_orig, image_lesion, image_leaf, image_ichloro, vl2, vl3, vl4, te
+
+    ani = anim.FuncAnimation(
+        fig=fig,
+        func=update,
+        frames=list(zip(time, images_orig, images_lesion, images_leaf, images_ichloro)),
+        interval=framestep,
+        repeat=True
+    )
+    ani.save(pjoin(where_to, f"{sample}.mpeg"), writer="ffmpeg", dpi=dpi)
+    plt.close()
+    return
+
+def write_animation2(
+    sample,
+    time,
+    lesion_area,
+    leaf_area,
+    ichloro,
     images,
     where_to,
     dpi=300,
     framestep=100,
 ):
     print(f"- {sample}")
-    fig, (ax1, ax2, ax3) = plt.subplots(ncols=1, nrows=3, figsize=(6, 9))
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(
+        ncols=1,
+        nrows=4,
+        figsize=(6, 9),
+        height_ratios=[3, 2, 2, 2],
+    )
 
     ax1.set_axis_off()
     image = ax1.imshow(io.imread(images[0]), interpolation=None)
 
     ax2.scatter(x=time, y=lesion_area, s=10, marker="o", alpha=0.5)
     ax2.set_ylabel("Lesion area", fontsize=10)
+
     ax3.scatter(x=time, y=leaf_area, s=10, marker="o", alpha=0.5)
     ax3.set_ylabel("Leaf area", fontsize=10)
-    ax3.set_xlabel("Time", fontsize=10)
+
+    ax4.scatter(x=time, y=ichloro, s=10, marker="o", alpha=0.5)
+    ax4.set_ylabel("ichloro sum", fontsize=10)
+    ax4.set_xlabel("Time", fontsize=10)
 
     vl2 = ax2.axvline(x=0, c="red")
     vl3 = ax3.axvline(x=0, c="red")
+    vl4 = ax4.axvline(x=0, c="red")
     te = ax2.text(len(lesion_area), 0, "0", verticalalignment="bottom", horizontalalignment="right")
     fig.subplots_adjust(hspace = 0, wspace = 0)
 
@@ -223,8 +316,9 @@ def write_animation(
         image.set_data(i)
         vl2.set_xdata([idx])
         vl3.set_xdata([idx])
+        vl4.set_xdata([idx])
         te.set_text(str(idx))
-        return image, vl2, vl3, te
+        return image, vl2, vl3, vl4, te
 
     ani = anim.FuncAnimation(
         fig=fig,
@@ -321,28 +415,55 @@ def process_image(
     mpath: str,
     write_video: str | None,
     tmpdir: str,
-    dpi: int = 300,
 ):
+    from matplotlib.colors import Normalize
+    norm = Normalize(vmin=0, vmax=255)
+    cm = plt.get_cmap("inferno")
     print(f'- processing image {fname}')
+
 
     image = io.imread(fname)
     output = list()
     p = Panel(image, 2, mpath, N)
     for l in p.leaf_stack:
         l.get_disease()
+        l.get_ichloro()
 
         record = {
             "id": l.name,
             "time": N,
             "lesion_area": l.s_disease,
             "leaf_area": l.leaf_area,
-            "fname": None
+            "ichloro_sum": round(l.ichloro),
+            "fname_orig": None,
+            "fname_lesion": None,
+            "fname_leaf": None,
+            "fname_ichloro": None,
         }
 
         if write_video is not None:
-            fname = pjoin(tmpdir, f"{l.name}_time{N:0>5}.jpg")
-            l.plot_result(path=fname, dpi=dpi)
-            record["fname"] = fname
+            bname = pjoin(tmpdir, f"{l.name}_time{N:0>5}")
+            fname = f"{bname}_orig.jpg"
+            record["fname_orig"] = fname
+            io.imsave(fname, l.i_source, check_contrast=False)
+
+            fname = f"{bname}_lesion.jpg"
+            record["fname_lesion"] = fname
+            img = cm(norm(l.i_disease[:, :, 2]))
+            img = np.clip(img[:, :, :3] * 255, 0, 255).astype("uint8")
+            io.imsave(fname, img, check_contrast=False)
+
+            fname = f"{bname}_leaf.jpg"
+            record["fname_leaf"] = fname
+            img = cm(norm(l.i_disease[:, :, 1]))
+            img = np.clip(img[:, :, :3] * 255, 0, 255).astype("uint8")
+            io.imsave(fname, img, check_contrast=False)
+
+            fname = f"{bname}_ichloro.jpg"
+            record["fname_ichloro"] = fname
+            img = cm(norm(l.i_ichloro))
+            img = np.clip(img[:, :, :3] * 255, 0, 255).astype("uint8")
+            io.imsave(fname, img, check_contrast=False)
 
         output.append(record)
 
@@ -392,7 +513,9 @@ def infest(
 
         df = pd.concat(results)
         df.sort_values(by=["time", "id"])
-        df.drop(columns="fname").to_csv(handle, sep="\t", header=True, index=False)
+        df.drop(
+            columns=["fname_orig", "fname_lesion", "fname_leaf", "fname_ichloro"]
+        ).to_csv(handle, sep="\t", header=True, index=False)
 
         if write_video is not None:
             print(f"Writing animation to: {write_video}")
@@ -404,8 +527,13 @@ def infest(
                     subdf["time"],
                     subdf["lesion_area"],
                     subdf["leaf_area"],
-                    subdf["fname"].tolist()
+                    subdf["ichloro_sum"],
+                    subdf["fname_orig"].tolist(),
+                    subdf["fname_lesion"].tolist(),
+                    subdf["fname_leaf"].tolist(),
+                    subdf["fname_ichloro"].tolist()
                 ))
+
 
             wa = functools.partial(
                 write_animation,

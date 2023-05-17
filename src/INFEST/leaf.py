@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import numpy as np
+import scipy as sp
 import matplotlib.pyplot as plt
 from skimage.measure import label
 from skimage.measure import regionprops
@@ -96,6 +97,49 @@ class Leaf:
         self.i_disease = self.fill_hole(res)
         return
 
+    @staticmethod
+    def get_mask(img):
+        from skimage.color import rgb2gray
+        from skimage.filters import threshold_otsu
+        from skimage.morphology import closing as skiclosing, square as skisquare
+
+        img_gs = rgb2gray(img)
+        threshold = threshold_otsu(img_gs)
+        mask = skiclosing(img_gs > threshold, skisquare(3))
+        mask = ~sp.ndimage.binary_fill_holes(~mask)
+        # This extends the object size a bit to remove any edge artifacts around edges of objects.
+        mask = sp.ndimage.binary_dilation(mask, structure=np.ones((3, 3)), iterations=1)
+        return mask
+
+    def get_simple_mask(self, threshold=0.3):
+        mask = (self.hsv[:, :, 1] >= threshold) \
+            | (self.i_disease[:, :, 1] > 0) \
+            | (self.i_disease[:, :, 2] > 0)
+        return mask
+
+    def get_ichloro(self):
+        img = self.i_source.copy()
+
+        new = np.zeros(img.shape[:-1])
+        coefs = [
+            -0.0280 * 1.04938271604938,
+            0.0190 * 1.04938271604938,
+            -0.0030 * 1.04115226337449
+        ]
+
+        for i, coef in enumerate(coefs):
+            new += coef * img[:, :, i]
+
+        new = np.exp(new + 5.780)
+
+        if not hasattr(self, "hsv"):
+            self.get_disease()
+
+        mask = self.get_simple_mask()
+        new[~mask] = np.nan
+        self.i_ichloro = new
+        self.ichloro = np.nansum(new)
+        return
 
     def get_mean(self, inp):
         tab = []
@@ -108,10 +152,10 @@ class Leaf:
         if (path is None) and not show:
             raise ValueError("Either path or show must be specified, otherwise we're not doing anything")
 
-        fig, (ax1, ax2, ax3) = plt.subplots(
-            ncols=3,
-            nrows=1,
-            figsize=(3, 9),
+        fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(
+            ncols=2,
+            nrows=2,
+            figsize=(6, 6),
         )
         ax1.imshow(self.i_source)
         ax1.axis('off')
@@ -123,6 +167,11 @@ class Leaf:
         ax3.axis('off')
         ax3.text(0, 10, "Leaf ", fontsize=6, color='White', verticalalignment="top")
         ax3.imshow(np.multiply(self.i_disease[:, :, 1], self.i_source[:, :, 1]), cmap='inferno', alpha=0.9)
+
+        ax4.axis('off')
+        ax4.text(0, 10, "Chloro ", fontsize=6, color='White', verticalalignment="top")
+        ax4.imshow(self.i_ichloro, cmap='inferno')
+        fig.subplots_adjust(hspace = 0, wspace = 0)
 
         if path is not None:
             plt.savefig(path, transparent=True, dpi=dpi, bbox_inches='tight', pad_inches=0)
