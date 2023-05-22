@@ -138,7 +138,7 @@ class Leaf:
         mask = self.get_simple_mask()
         new[~mask] = np.nan
         self.i_ichloro = new
-        self.ichloro = np.nansum(new)
+        self.ichloro = np.nansum(new / 255)
         return
 
     def get_mean(self, inp):

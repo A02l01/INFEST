@@ -434,7 +434,7 @@ def process_image(
             "time": N,
             "lesion_area": l.s_disease,
             "leaf_area": l.leaf_area,
-            "ichloro_sum": round(l.ichloro),
+            "ichloro_sum": l.ichloro,
             "fname_orig": None,
             "fname_lesion": None,
             "fname_leaf": None,
