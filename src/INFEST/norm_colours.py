@@ -35,7 +35,7 @@ def get_img_training_data(img, grid):
             continue
         xs.append(r[[0, 2]])
         ys.append(y)
-    
+
     xs = np.stack(xs)
     ys = np.array(ys)
     return xs, ys
