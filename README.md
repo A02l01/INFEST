@@ -175,6 +175,8 @@ infest-check-layout -a -o grid_layout/panel.mpeg layout.tsv *.jpg
 
 ### Latest news
 - Version 1 available
+- A new version of INFEST is proposed by Darcy Jones and is freely available ![here](https://github.com/darcyabjones/INFEST)
+
 
 ### Install
 
