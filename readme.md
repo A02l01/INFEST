@@ -1,4 +1,5 @@
 # INFEST
+# An new version of INFEST is proposed by Darcy Jones and is freely available ![here](https://github.com/darcyabjones/INFEST)
 ## Overview
 INFEST for k**IN**ematic o**F** l**ES**ion developmen**T**. This plugin was used to compute the kinematic of lesion caused by the necrotrophic fungus _Sclerotinia sclerotiorum_. INFEST was developed for [QIP](http://qiplab.weebly.com/overview.html) (quantitative immunity in plant) @ LIPM (Lab of plant microbes interaction) in Toulouse by Adelin Barbacci. **INFEST was founded by Sylvain Raffaele's ERC varywim**. Feel free to use it.
 
