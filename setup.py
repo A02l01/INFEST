@@ -75,6 +75,7 @@ setup(
     # versions of scikit-learn, so I have to keep it fixed.
     install_requires=[
         'scikit-image',
+        'scikit-learn',
         'numpy',
         'scipy',
         'pandas',

@@ -9,6 +9,7 @@ dependencies:
   - matplotlib
   - scipy
   - scikit-image
+  - scikit-learn
   - ffmpeg
   - pip
   - pip:

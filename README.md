@@ -1,11 +1,15 @@
 # INFEST
 
-INFEST for k**IN**ematic o**F** l**ES**ion developmen**T**. This plugin was used to compute the kinematic of lesion caused by the necrotrophic fungus _Sclerotinia sclerotiorum_. INFEST was developed for [QIP](http://qiplab.weebly.com/overview.html) (quantitative immunity in plant) @ LIPM (Lab of plant microbes interaction) in Toulouse by Adelin Barbacci. **INFEST was founded by Sylvain Raffaele's ERC varywim**. Feel free to use it.
+INFEST for k**IN**ematic o**F** l**ES**ion developmen**T**. This plugin was used to compute the kinematic of lesion caused by the necrotrophic fungus _Sclerotinia sclerotiorum_.
+INFEST was developed for [QIP](http://qiplab.weebly.com/overview.html) (quantitative immunity in plant) @ LIPM (Lab of plant microbes interaction) in Toulouse by Adelin Barbacci with contributions from Darcy Jones.
+**INFEST was founded by Sylvain Raffaele's ERC varywim**. Feel free to use it.
+
 
 
 **For academic use please cite:**
 
-> Barbacci, A., Navaud, O., Mbengue, M., Barascud, M., Godiard, L., Khafif, M., Lacaze, A., Raffaele, S., 2020 **Rapid identification of an Arabidopsis NLR gene conferring susceptibility to Sclerotinia sclerotiorum using real-time automated phenotyping**. Rev.
+> Barbacci, A., Navaud, O., Mbengue, M., Barascud, M., Godiard, L., Khafif, M., Lacaze, A., Raffaele, S., 2020 **Rapid identification of an Arabidopsis NLR gene conferring susceptibility to _Sclerotinia sclerotiorum_ using real-time automated phenotyping**. (2020) Plant J. 103(2) 903-917. [10.1111/tpj.14747](https://doi.org/10.1111/tpj.14747)
+
 
 We are on twitter
 [AB](https://twitter.com/A_Barbacci),
@@ -14,7 +18,36 @@ We are on twitter
 ![Kinematic of lesion development for the leaf 'Col-0_154'](https://github.com/A02l01/d/blob/master/d/inf.gif)
 
 
-### INFEST
+## Required inputs
+
+- Jpeg images stored in a directory and named by an integer _e.g._ `1.jpg` to `N.jpg` corresponding to the time course order.
+- the layout file `grid_layout.layout` in the subdirectory `grid_layout` of the directory containing pictures (e.g. `my_pictures/grid_layout/grid_layout.layout` _c.f._ tutorial)
+
+```
+my_pictures/
+    0.jpg
+    1.jpg
+    2.jpg
+    3.jpg
+    grid_layout/grid_layout.layout
+```
+
+
+The layout file provide the Id and the bounding boxes of leaves _e.g._
+
+```
+id_leaf_1\tymin\txmin\tymax\txmax
+id_leaf_2\tymin\txmin\tymax\txmax
+id_leaf_3\t...
+```
+
+With `\t ` indicating a tabulation character.
+
+
+
+
+
+## INFEST
 
 ```
 usage: infest [-h] [-f FIRST] [-l LAST] mpath
@@ -56,71 +89,7 @@ infest mpath --write-video mpath_animations --ncpu 4
 ```
 
 
-### fit INFEST
-
-> **NOTE:** This method is no longer used in practise.
-> You should probably use the R script stored in [`scripts/slopes.R`](#using-the-r-script)
-
-```
-usage: infest-fit [-h] [-ft FIRST] [-g] path_in path_out
-
-positional arguments:
-  path_in               the path to the file containing temporal data computed
-                        by INFEST
-  path_out              the path to the file containing LDT and Latency
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -ft FIRST, --first FIRST
-                        the first time to consider for the computation of the
-                        LDT
-  -g, --graph           monitoring the fit of the curve
-```
-
-#### Output
-
-A txt file specified in `path_out` directory containing 9 columns: the **Id** of leaf, the parameters **a1** to **a5** resulting from the fit, the **residuals** of the fit, the lesion doubling time **LDT**, and the **Latency**
-
-
-### Normalise background colour
-
-Lighting conditions can significantly effect the colour balance of images between time points.
-To improve consistency we normalise the colour balance to an approximate known white background.
-
-This script automatically finds the white background (i.e. paper towel/tissue paper on which the leaves are placed), 
-and recalibrates the image to have a more normal colour balance.
-
-By default, this recalibration applies non-uniformly across the image.
-It is common, for example, for growth lights to illuminate the center of the nauvitron more than the edges.
-Normalising to a single value typically causes the center to be saturated and the edges to be a bit too dark.
-Instead, we find mean colour balances in a non-overlapping grid, and interpolate the what the expected values of the white background would have been behind the leaves using a gaussian process regressor (which simultaneously smoothes the signal).
-Finally, a strong gaussian blur is applied to avoid issues associated with the hard edges from the non-overlapping grid.
-
-You can apply a uniform recalibration by supplying the `--uniform` parameter.
-This gives reasonable results and is much faster.
-
-```
-usage: infest-norm [-h] [-o OUTDIR] [-u] [-g GRIDSIZE] [-s SIGMA] [-n NITER] images [images ...]
-
-positional arguments:
-  images                The path to the image you want to overlay the layout onto.
-
-options:
-  -h, --help            show this help message and exit
-  -o OUTDIR, --outdir OUTDIR
-                        Where to save the output file(s) to.
-  -u, --uniform         Instead of applying region specific normalisation, normalise by average background
-  -g GRIDSIZE, --gridsize GRIDSIZE
-                        How big should the grid be? NOTE: Smaller values use more memory. Default: 100
-  -s SIGMA, --sigma SIGMA
-                        The sigma value for gaussian blurring. Default: 5.
-  -n NITER, --niter NITER
-                        How many iterations of blurring should the background interpolation have?
-                        NOTE: This needs to increase if gridsize is increased. Default: 5
-```
-
-
-### Check layout
+## Check layout
 
 Check that your bounding boxes in the layout actually cover the leaves.
 
@@ -173,12 +142,72 @@ infest-check-layout -a -o grid_layout/panel.mpeg layout.tsv *.jpg
 ```
 
 
-### Latest news
-- Version 1 available
-- A new version of INFEST is proposed by Darcy Jones and is freely available ![here](https://github.com/darcyabjones/INFEST)
+## Normalise background colour
+
+Lighting conditions can significantly effect the colour balance of images between time points.
+To improve consistency we normalise the colour balance to an approximate known white background.
+
+This script automatically finds the white background (i.e. paper towel/tissue paper on which the leaves are placed), 
+and recalibrates the image to have a more normal colour balance.
+
+By default, this recalibration applies non-uniformly across the image.
+It is common, for example, for growth lights to illuminate the center of the nauvitron more than the edges.
+Normalising to a single value typically causes the center to be saturated and the edges to be a bit too dark.
+Instead, we find mean colour balances in a non-overlapping grid, and interpolate the what the expected values of the white background would have been behind the leaves using a gaussian process regressor (which simultaneously smoothes the signal).
+Finally, a strong gaussian blur is applied to avoid issues associated with the hard edges from the non-overlapping grid.
+
+You can apply a uniform recalibration by supplying the `--uniform` parameter.
+This gives reasonable results and is much faster.
+
+```
+usage: infest-norm [-h] [-o OUTDIR] [-u] [-g GRIDSIZE] [-s SIGMA] [-n NITER] images [images ...]
+
+positional arguments:
+  images                The path to the image you want to overlay the layout onto.
+
+options:
+  -h, --help            show this help message and exit
+  -o OUTDIR, --outdir OUTDIR
+                        Where to save the output file(s) to.
+  -u, --uniform         Instead of applying region specific normalisation, normalise by average background
+  -g GRIDSIZE, --gridsize GRIDSIZE
+                        How big should the grid be? NOTE: Smaller values use more memory. Default: 100
+  -s SIGMA, --sigma SIGMA
+                        The sigma value for gaussian blurring. Default: 5.
+  -n NITER, --niter NITER
+                        How many iterations of blurring should the background interpolation have?
+                        NOTE: This needs to increase if gridsize is increased. Default: 5
+```
 
 
-### Install
+## fit INFEST
+
+> **NOTE:** This method is no longer used in practise.
+> You should probably use the R script stored in [`scripts/slopes.R`](#using-the-r-script)
+
+```
+usage: infest-fit [-h] [-ft FIRST] [-g] path_in path_out
+
+positional arguments:
+  path_in               the path to the file containing temporal data computed
+                        by INFEST
+  path_out              the path to the file containing LDT and Latency
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -ft FIRST, --first FIRST
+                        the first time to consider for the computation of the
+                        LDT
+  -g, --graph           monitoring the fit of the curve
+```
+
+#### Output
+
+A txt file specified in `path_out` directory containing 9 columns: the **Id** of leaf, the parameters **a1** to **a5** resulting from the fit, the **residuals** of the fit, the lesion doubling time **LDT**, and the **Latency**
+
+
+
+## Install
 
 #### Prerequisites
 
@@ -287,29 +316,15 @@ python3 -m pip install ./INFEST/
 ```
 
 
-### Pictures & Files
-
-- Jpeg images stored in a directory and named by an integer _e.g._ `1.jpg` to `N.jpg` corresponding to the time course.
-- the layout file `grid_layout.layout` in the subdirectory `grid_layout` of the directory containing pictures (e.g. `my_pictures/grid_layout/grid_layout.layout` _c.f._ tutorial)
-- The layout file provide the Id and the bounding boxes of leaves _e.g._
-
-
-```
-id_leaf_1\tymin\txmin\tymax\txmax\n
-id_leaf_1\tymin\txmin\tymax\txmax\n
-id_leaf_3\t...
-```
-with `\t ` a tabulation.
-
-
 ***
+
 
 ## Tutorial
 > This tutorial was designed for linux users. It is easily transposable for macOS and Windows users by replacing most of command lines by fastidious mouse clicks.
 
 In this short tutorial we will use **INFEST** to compute the kinematic of lesion development of a single detached leaf of _Arabidopsis thaliana_ coined _Col-0_154_.
 
-## Download data
+### Download data
 Data are in the `data_tuto/` directory. Download and extract data with git:
 
 `$ git clone https://github.com/A02l01/tuto.git`
@@ -369,6 +384,7 @@ Leading to:
 
 ![Kinematic of lesion development for the leaf 'Col-0_154'](https://raw.githubusercontent.com/A02l01/d/master/d/ldt.png)
 
+
 ### Using the R-script
 
 Sometimes the lesion doubling time can be difficult to determine automatically.
@@ -419,6 +435,11 @@ You may wish to view the animated videos if the curve is a bit odd.
 
 
 ***
+## Latest news
+- Version 1 available
+- A new version of INFEST is proposed by Darcy Jones and is freely available ![here](https://github.com/darcyabjones/INFEST)
+
+
 
 ```
   ##     ###             ###     ##
