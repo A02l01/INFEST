@@ -26,7 +26,7 @@ def minclamp(integer: int, margin: int, max_value: int | None = None):
 
 class LayoutRow(NamedTuple):
 
-    sample: str
+    id: str
     minr: int
     minc: int
     maxr: int
@@ -68,7 +68,7 @@ class LayoutRow(NamedTuple):
         minc = maxclamp(self.minc, margin)
         maxr = minclamp(self.maxr, margin, maxr_val)
         maxc = minclamp(self.maxc, margin, maxc_val)
-        return self.__class__(self.sample, minr, minc, maxr, maxc)
+        return self.__class__(self.id, minr, minc, maxr, maxc)
 
     def get_position(self) -> tuple[float, float]:
         return ((self.minr + self.maxr) / 2, (self.minc + self.maxc) / 2)
@@ -80,6 +80,7 @@ class Panel:
         self,
         image,
         layout: str,
+        time: int | None = None,
         margin: int = 5,
         leaf_mask_type: Literal["threshold", "otsu", "watershed", "original"] = "watershed",
         panel_mask_type: Literal["threshold", "otsu", "watershed"] = "watershed",
@@ -87,6 +88,7 @@ class Panel:
         self.margin: int = margin
         self.leaf_mask_type = leaf_mask_type
         self.panel_mask_type = panel_mask_type
+        self.time = time
 
         self.layout_path: str = layout
         self.layout: dict[str, LayoutRow] = self.__parse_layout(layout)
@@ -108,7 +110,7 @@ class Panel:
 
         with open(gl, "r") as handle:
             for lr in LayoutRow.from_file(handle):
-                out[lr.sample] = lr
+                out[lr.id] = lr
 
         return out
 
@@ -153,8 +155,9 @@ class Panel:
 
         img = self.img_original[lr.minr:lr.maxr, lr.minc:lr.maxc]
         return Leaf(
-            lr.sample,
+            lr.id,
             img,
+            time=self.time,
             position=lr.get_position(),
             mask_type=mask_type_
         )
@@ -279,7 +282,7 @@ class Panel:
             ax.text(
                 lr.minc + (lr.maxc - lr.minc) * 0.1,
                 lr.minr + (lr.maxr - lr.minr) / 2,
-                lr.sample,
+                lr.id,
                 fontsize=4,
                 color="black"
             )

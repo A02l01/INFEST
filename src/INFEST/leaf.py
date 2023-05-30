@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 
 import numpy as np
-from typing import NamedTuple, Literal
+from typing import NamedTuple, Literal, Any
+
+import pandas as pd
 
 
 __names__ = ["Leaf", "LeafStats"]
@@ -9,37 +11,41 @@ __names__ = ["Leaf", "LeafStats"]
 
 class LeafStats(NamedTuple):
 
-    sample: str
+    id: str
     lesion_area: int
     leaf_area: int
     ichloro_sum: float
+    time: int | None
     position: tuple[float, float] | None = None
 
 
     @classmethod
     def from_images(
         cls,
-        sample: str,
+        id: str,
         lesion: np.ndarray,
         leaf: np.ndarray,
         ichloro: np.ndarray,
+        time: int | None = None,
         position: tuple[float, float] | None = None
     ) -> "LeafStats":
         lesion_area = np.sum(lesion)
         leaf_area = np.sum(leaf) + np.sum(lesion)
         ichloro_area = np.sum(ichloro)
         return cls(
-            sample,
+            id,
             lesion_area,
             leaf_area,
             ichloro_area,
+            time,
             position
         )
 
     @classmethod
     def header(cls) -> str:
         return "\t".join([
-            "sample",
+            "id",
+            "time",
             "lesion_area",
             "leaf_area",
             "ichloro_sum",
@@ -48,8 +54,14 @@ class LeafStats(NamedTuple):
         ])
 
     def __str__(self) -> str:
+        if self.time is None:
+            time = "."
+        else:
+            time = str(self.time)
+
         row = [
-            self.sample,
+            self.id,
+            time,
             str(self.lesion_area),
             str(self.leaf_area),
             str(round(self.ichloro_sum, 2)),
@@ -65,19 +77,41 @@ class LeafStats(NamedTuple):
 
         return "\t".join(row)
 
+    def as_dict(self) -> dict[str, Any]:
+        if self.position is None:
+            x = None
+            y = None
+        else:
+            x, y = self.position
+
+        return {
+            "id": self.id,
+            "time": self.time,
+            "lesion_area": self.lesion_area,
+            "leaf_area": self.leaf_area,
+            "ichloro_sum": self.ichloro_sum,
+            "x": x,
+            "y": y
+        }
+
+    def as_pandas(self) -> pd.Series:
+        return pd.Series(self.as_dict())
+
 
 class Leaf:
     def __init__(
         self,
-        sample,
+        id,
         img,
+        time: int | None = None,
         position: tuple[float, float] | None = None,
         mask_type: Literal["threshold", "otsu", "watershed", "original"] = "watershed",
         mask: np.ndarray | None = None,
         mask_erode: int | None = None,
         min_object_size: int = 30
     ):
-        self.sample = sample
+        self.id = id
+        self.time = time
         self.position = position
         self.img_original  = img
         self.mask_type = mask_type
@@ -237,8 +271,7 @@ class Leaf:
         lesion: np.ndarray | None = None,
         leaf: np.ndarray | None = None,
         ichloro: np.ndarray | None = None,
-        mask: np.ndarray | None = None,
-    ):
+    ) -> LeafStats:
         if lesion is None:
             lesion_ = self.lesion()
         else:
@@ -255,10 +288,11 @@ class Leaf:
             ichloro_ = ichloro
 
         return LeafStats.from_images(
-            sample=self.sample,
+            id=self.id,
             lesion=lesion_,
             leaf=leaf_,
             ichloro=ichloro_,
+            time=self.time,
             position=self.position
         )
 

@@ -267,7 +267,7 @@ def main(prog: str | None = None, argv: list[str] | None = None):
         type=str,
         choices=["threshold", "otsu", "watershed"],
         default="otsu",
-        help="What algorithm to use to detect the background. Default: watershed",
+        help="What algorithm to use to detect the background. Default: otsu",
     )
     parser.add_argument(
         "-n", "--ncpu",
