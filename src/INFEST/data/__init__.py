@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+__names__ = ["data_gmax", "data_atha", "data_marca"]
+
 
 def resource_filename(module, resource):
     """ Emulates the behaviour of the old setuptools resource_filename command.
@@ -22,4 +24,16 @@ def data_gmax():
     from os import listdir
     from os.path import join
     dir = resource_filename(__name__, "gmax")
+    return [join(dir, f) for f in listdir(dir)]
+
+def data_atha():
+    from os import listdir
+    from os.path import join
+    dir = resource_filename(__name__, "atha")
+    return [join(dir, f) for f in listdir(dir)]
+
+def data_marca():
+    from os import listdir
+    from os.path import join
+    dir = resource_filename(__name__, "marca")
     return [join(dir, f) for f in listdir(dir)]
