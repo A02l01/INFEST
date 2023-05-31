@@ -12,7 +12,7 @@ Although the software was developed to phenotype _Sclerotinia sclerotiorum_ infe
 > Barbacci, A., Navaud, O., Mbengue, M., Barascud, M., Godiard, L., Khafif, M., Lacaze, A., Raffaele, S., 2020 **Rapid identification of an Arabidopsis NLR gene conferring susceptibility to _Sclerotinia sclerotiorum_ using real-time automated phenotyping**. (2020) Plant J. 103(2) 903-917. [10.1111/tpj.14747](https://doi.org/10.1111/tpj.14747)
 
 
-![Kinematic of lesion development for the leaf 'Col-0_154'](https://github.com/A02l01/d/blob/master/d/inf.gif)
+![Kinematic of lesion development](examples/example.gif)
 
 
 **We list the programs and options below, but you can also follow a worked example in the [tutorial](/TUTORIAL.md).**

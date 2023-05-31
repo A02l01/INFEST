@@ -102,6 +102,9 @@ head my_analysis.tsv
 ```
 
 So you now have the leaf and lesion areas for each leaf at each time step.
+In the folder `leaf_animations` you should have a video for each leaf showing the lesion development alongside the measured values.
+
+![Lesion development](examples/example.gif)
 
 
 ### Finding the slope to summarise lesion growth velocity.
