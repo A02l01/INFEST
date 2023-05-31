@@ -10,7 +10,7 @@ With some minor code adaptations it should be possible to run the tutorial in wi
 
 First we'll get some example images.
 
-We provide a simple command to copy example data for your.
+We provide a simple command to copy example data for you.
 We'll get the Arabidopsis dataset.
 
 ```
@@ -36,7 +36,10 @@ A description of the layout file format is given in the [README](README.md).
 You can then check that your layout file is ok:
 
 ```
-infest-check-layout -o atha_example/grid_layout/panel.jpg atha_example/grid_layout/grid_layout.layout atha_example/0.jpg
+infest-check-layout \
+  -o atha_example/grid_layout/panel.jpg \
+  atha_example/grid_layout/grid_layout.layout \
+  atha_example/0.jpg
 ```
 
 Have a look at `atha_example/grid_layout/panel.jpg` to see if the samples are well bounded.
@@ -72,6 +75,7 @@ infest-check-layout \
   -a \
   -o atha_example_norm.mpeg \
   --framestep 100 \
+  atha_example/grid_layout/grid_layout.layout \
   atha_example_norm/*.jpg
 ```
 
@@ -91,6 +95,7 @@ infest \
   --write-video ./leaf_animations \
   --framestep 100 \
   --outfile my_analysis.tsv \
+  atha_example/grid_layout/grid_layout.layout \
   atha_example_norm/*.jpg
 
 head my_analysis.tsv
@@ -155,3 +160,13 @@ Again, determining the slope is difficult and the R-scripts are evolving and not
 We don't yet have a perfect solution.
 The linear method has been used in the lab for some time.
 The spline method was developed by Darcy as an attempt to determine the best slope automatically.
+
+
+
+### Challenge
+
+Try running the tutorial again but using the `marca` dataset.
+You'll see that the different colour balance and very narrow leaves makes this dataset much more difficult to get good results for.
+
+- What happens if you don't provide the layout file to `infest-norm`?
+- What happens if you use a different `infest --masktype` values (e.g. `none`)?

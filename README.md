@@ -260,6 +260,15 @@ options:
 This will output a single colour corrected image for each input image.
 
 
+## Get example data
+
+We have a command to retrieve the example data we use for testing and development.
+
+```
+
+```
+
+
 ## Install
 
 #### Prerequisites
