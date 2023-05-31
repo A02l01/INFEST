@@ -62,9 +62,9 @@ def main(prog: str | None = None, argv: list[str] | None = None):
         type=int,
         help=(
             "If writing a video, how many milliseconds should each image be displayed for. "
-            "E.g. framestep=100 (default) means 10 images will be displayed per second."
+            "E.g. framestep=50 (default) means 20 images will be displayed per second."
         ),
-        default=100
+        default=50
     )
 
     args = parser.parse_args(argv)

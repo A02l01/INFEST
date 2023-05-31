@@ -105,7 +105,7 @@ class Leaf:
         img,
         time: int | None = None,
         position: tuple[float, float] | None = None,
-        mask_type: Literal["threshold", "otsu", "watershed", "original"] = "watershed",
+        mask_type: Literal["threshold", "otsu", "watershed", "original", "none"] = "watershed",
         mask: np.ndarray | None = None,
         mask_erode: int | None = None,
         min_object_size: int = 30
@@ -122,7 +122,7 @@ class Leaf:
 
     def get_mask(
         self,
-        mask_type: Literal["threshold", "otsu", "watershed", "original"] | None = None,
+        mask_type: Literal["threshold", "otsu", "watershed", "original", "none"] | None = None,
         erode: int | None = None
     ):
         from skimage.color import rgb2gray
@@ -153,6 +153,8 @@ class Leaf:
             mask = watershed_mask(rgb2gray(self.img_original), min_object_size=100)
         elif mask_type_ == "original":
             mask = original_mask(self.img_original)
+        elif mask_type_ == "none":
+            mask = np.full(self.img_original.shape[:-1], fill_value=True)
         else:
             raise ValueError("mask_type is invalid.")
 

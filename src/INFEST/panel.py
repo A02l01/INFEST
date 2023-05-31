@@ -82,7 +82,7 @@ class Panel:
         layout: str,
         time: int | None = None,
         margin: int = 5,
-        leaf_mask_type: Literal["threshold", "otsu", "watershed", "original"] = "watershed",
+        leaf_mask_type: Literal["threshold", "otsu", "watershed", "original", "none"] = "watershed",
         panel_mask_type: Literal["threshold", "otsu", "watershed"] = "watershed",
     ):
         self.margin: int = margin
@@ -125,7 +125,7 @@ class Panel:
     def get(
         self,
         key: str, margin: int | None = None,
-        mask_type: Literal["threshold", "otsu", "watershed", "original"] | None = None,
+        mask_type: Literal["threshold", "otsu", "watershed", "original", "none"] | None = None,
     ) -> Leaf | None:
 
         if mask_type is None:
@@ -134,7 +134,7 @@ class Panel:
             mask_type_ = mask_type
 
         # For the type checkers
-        assert mask_type_ in ("threshold", "otsu", "watershed", "original")
+        assert mask_type_ in ("threshold", "otsu", "watershed", "original", "none")
 
         lr = self.layout.get(key, None)
 
@@ -190,7 +190,7 @@ class Panel:
         # For the type checkers
         assert mask_type_ in ("threshold", "otsu", "watershed")
         leaf_mask_type = self.leaf_mask_type
-        assert leaf_mask_type in ("threshold", "otsu", "watershed", "original")
+        assert leaf_mask_type in ("threshold", "otsu", "watershed", "original", "none")
 
         grid = self.get_grid_mask()
 
@@ -224,7 +224,7 @@ class Panel:
         # For the type checkers
         assert mask_type_ in ("threshold", "otsu", "watershed")
         leaf_mask_type = self.leaf_mask_type
-        assert leaf_mask_type in ("threshold", "otsu", "watershed", "original")
+        assert leaf_mask_type in ("threshold", "otsu", "watershed", "original", "none")
 
         grid = self.get_grid_mask()
 

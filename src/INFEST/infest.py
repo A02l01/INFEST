@@ -221,16 +221,16 @@ def main(prog: str | None = None, argv: list[str] | None = None):
         "-d", "--dpi",
         type=int,
         help="If writing a video, what resolution should it have?",
-        default=300,
+        default=150,
     )
     parser.add_argument(
         "-s", "--framestep",
         type=int,
         help=(
             "If writing a video, how many milliseconds should each image be displayed for. "
-            "E.g. framestep=100 (default) means 10 images will be displayed per second."
+            "E.g. framestep=50 (default) means 20 images will be displayed per second."
         ),
-        default=100
+        default=50
     )
     parser.add_argument(
         "--normalise",
@@ -244,7 +244,7 @@ def main(prog: str | None = None, argv: list[str] | None = None):
     parser.add_argument(
         "-t", "--masktype",
         type=str,
-        choices=["threshold", "otsu", "watershed", "original"],
+        choices=["threshold", "otsu", "watershed", "original", "none"],
         default="watershed",
         help="What algorithm to use to detect the background. Default: watershed",
     )
@@ -278,7 +278,7 @@ def process_image(
     i: int,
     path: str,
     layout: str,
-    leaf_mask_type: Literal["threshold", "otsu", "watershed", "original"],
+    leaf_mask_type: Literal["threshold", "otsu", "watershed", "original", "none"],
     normalise: Literal["uniform", "nonuniform"] | None,
     write_video: str | None,
     tmpdir: str,
@@ -349,7 +349,7 @@ def infest(
     images: list[str],
     layout: str,
     outfile: str,
-    leaf_mask_type: Literal["threshold", "otsu", "watershed", "original"],
+    leaf_mask_type: Literal["threshold", "otsu", "watershed", "original", "none"],
     normalise: Literal["uniform", "nonuniform"] | None = None,
     write_video: str | None = None,
     ncpu: int = 1,
