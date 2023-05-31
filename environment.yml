@@ -1,0 +1,16 @@
+name: INFEST
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3
+  - pandas
+  - numpy
+  - matplotlib
+  - scipy
+  - scikit-image
+  - scikit-learn
+  - ffmpeg
+  - pip
+  - pip:
+    - git+https://github.com/darcyabjones/INFEST.git
