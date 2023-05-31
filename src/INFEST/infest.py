@@ -191,14 +191,13 @@ def main(prog: str | None = None, argv: list[str] | None = None):
 
     parser = argparse.ArgumentParser(prog=basename(prog))
     parser.add_argument(
+        "layout",
+        help="Provide the locations of the leaves for quantification."
+    )
+    parser.add_argument(
         "images",
         nargs="+",
         help="The pictures you want to quantify."
-    )
-    parser.add_argument(
-        "-l", "--layout",
-        default=None,
-        help="Provide the locations of the leaves to help in finding the background."
     )
     parser.add_argument(
         "-o", "--outfile",

@@ -108,8 +108,8 @@ setup(
         'console_scripts': [
             'infest=INFEST.infest:main',
             'infest-check-layout=INFEST.check_layout:main',
-            'infest-fit=INFEST.fit:main',
-            'infest-norm=INFEST.norm_colours:main'
+            'infest-norm=INFEST.norm_colours:main',
+            'infest-example=INFEST.example_data:main'
         ],
     },
 )

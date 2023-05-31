@@ -3,7 +3,7 @@
 __names__ = ["data_gmax", "data_atha", "data_marca"]
 
 
-def resource_filename(module, resource):
+def resource_filename(module: str, resource: str) -> str:
     """ Emulates the behaviour of the old setuptools resource_filename command.
 
     Basically it just gets rid of the context manager thing, because it's not
@@ -20,20 +20,6 @@ def resource_filename(module, resource):
     return filename
 
 
-def data_gmax():
-    from os import listdir
-    from os.path import join
-    dir = resource_filename(__name__, "gmax")
-    return [join(dir, f) for f in listdir(dir)]
-
-def data_atha():
-    from os import listdir
-    from os.path import join
-    dir = resource_filename(__name__, "atha")
-    return [join(dir, f) for f in listdir(dir)]
-
-def data_marca():
-    from os import listdir
-    from os.path import join
-    dir = resource_filename(__name__, "marca")
-    return [join(dir, f) for f in listdir(dir)]
+gmax_dir = resource_filename(__name__, "gmax")
+atha_dir = resource_filename(__name__, "atha")
+marca_dir = resource_filename(__name__, "marca")

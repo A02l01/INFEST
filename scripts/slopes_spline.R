@@ -1,7 +1,5 @@
 library("tidyverse")
 library("ggrepel")
-library("mclust")
-library("mcp")
 library("segmented")
 library("splines")
 

@@ -1,9 +1,10 @@
 # INFEST
 
-INFEST for k**IN**ematic o**F** l**ES**ion developmen**T**. This plugin was used to compute the kinematic of lesion caused by the necrotrophic fungus _Sclerotinia sclerotiorum_.
+INFEST for k**IN**ematic o**F** l**ES**ion developmen**T** computes the kinematics of lesion development caused by the necrotrophic fungus _Sclerotinia sclerotiorum_.
 INFEST was developed for [QIP](http://qiplab.weebly.com/overview.html) (quantitative immunity in plant) @ LIPM (Lab of plant microbes interaction) in Toulouse by Adelin Barbacci with contributions from Darcy Jones.
-**INFEST was founded by Sylvain Raffaele's ERC varywim**. Feel free to use it.
+**INFEST was founded by Sylvain Raffaele's ERC varywim**.
 
+Although the software was developed to phenotype _Sclerotinia sclerotiorum_ infections, it should also work well for other necrotrophic plant pathogens.
 
 
 **For academic use please cite:**
@@ -11,17 +12,20 @@ INFEST was developed for [QIP](http://qiplab.weebly.com/overview.html) (quantita
 > Barbacci, A., Navaud, O., Mbengue, M., Barascud, M., Godiard, L., Khafif, M., Lacaze, A., Raffaele, S., 2020 **Rapid identification of an Arabidopsis NLR gene conferring susceptibility to _Sclerotinia sclerotiorum_ using real-time automated phenotyping**. (2020) Plant J. 103(2) 903-917. [10.1111/tpj.14747](https://doi.org/10.1111/tpj.14747)
 
 
-We are on twitter
-[AB](https://twitter.com/A_Barbacci),
-[SR](https://twitter.com/QIPlab)
-
 ![Kinematic of lesion development for the leaf 'Col-0_154'](https://github.com/A02l01/d/blob/master/d/inf.gif)
+
+
+**We list the programs and options below, but you can also follow a worked example in the [tutorial](/TUTORIAL.md).**
 
 
 ## Required inputs
 
-- Jpeg images stored in a directory and named by an integer _e.g._ `1.jpg` to `N.jpg` corresponding to the time course order.
-- the layout file `grid_layout.layout` in the subdirectory `grid_layout` of the directory containing pictures (e.g. `my_pictures/grid_layout/grid_layout.layout` _c.f._ tutorial)
+- jpeg or png images stored in a directory and named by an integer _e.g._ `1.jpg` to `N.jpg` corresponding to the time course order.
+  Numbers may be missing in the series (e.g. if you exclude a time point because the image is poor).
+  Date and times as `YYMMDDHHMMSS` may also be appropriate. As long as they can be converted to integers and the sorted order corresponds to the time-course order it will work.
+- The layout file described below.
+
+A suggested folder structure is like this:
 
 ```
 my_pictures/
@@ -33,59 +37,122 @@ my_pictures/
 ```
 
 
-The layout file provide the Id and the bounding boxes of leaves _e.g._
-
-```
-id_leaf_1\tymin\txmin\tymax\txmax
-id_leaf_2\tymin\txmin\tymax\txmax
-id_leaf_3\t...
-```
-
-With `\t ` indicating a tabulation character.
+The layout file is a tab separated file containing the leaf ids and positions leaf bounding boxes, with the following columns:
 
 
+| column | type   | description                             |
+|--------|--------|-----------------------------------------|
+| id     | string | The sample id of the leaf               |
+| ymin   | int    | The minimum y-value of the bounding box |
+| xmin   | int    | As above but for x                      |
+| ymax   | int    | The maximum y-value of the bounding box |
+| xmax   | int    | As above but for x                      |
 
+
+Note that this file should not have a header.
+An example file is provided in `examples/layout.tsv`
+
+
+**Some example images and layout files used for testing is available for [Arabidopsis](/src/INFEST/data/atha) and [Soybean](src/INFEST/data/gmax).**
 
 
 ## INFEST
 
+Quantifies lesion characteristics for a given panel of leaves over many sampled times.
+For each leaf bounding box indicated by the layout file, this program masks the background and quantifies the proportion of pixels where the red value is greater than green (lesion), green is greater than red (leaf=this + lesion area), and a linear model of the three channels indicating chlorophyll content.
+
+Optionally, you can run default normalisation at the same time (but running separately is recommended) and/or write animations of each leaf (which are helpful when evaluating curves).
+
+Setting the `--masktype` depends on your data and you may find it helpful to run multiple times with different values.
+There is little difference in runtimes.
+`watershed` (default) is the most accurate of the leaf detection methods, but it can still struggle with plugs close to the edges of leaves. This is recommended for many broad-leaf plants.
+`none` means that the background is not removed at all and the values will include the background pixels.
+However because the background is more-or-less static, this can help avoid much of the noise caused by difficulties in differentiating plugs or white regions of the background from the lesions. This is recommended for narrow leaves.
+`original` is the original method based on a hard colour saturation threshold.
+
+
 ```
-usage: infest [-h] [-f FIRST] [-l LAST] mpath
+usage: infest [-h] [-o OUTFILE] [-w WRITE_VIDEO] [-n NCPU] [-d DPI]
+              [-s FRAMESTEP] [--normalise {uniform,nonuniform}]
+              [-t {threshold,otsu,watershed,original,none}]
+              layout images [images ...]
 
 positional arguments:
-  mpath                 Path to the directory containing pictures
+  layout                Provide the locations of the leaves for quantification.
+  images                The pictures you want to quantify.
 
-optional arguments:
+
+options:
   -h, --help            show this help message and exit
-  -f FIRST, --first FIRST
-                        Number of the first picture
-  -l LAST, --last LAST  Number of the last picture
-  -w DIR, --write-video DIR Write animations of each leaf to this directory.
-                            Default: don't write animations.
-  -n INT, --ncpu INT    How many cpus can we use? Default 1.
-  -d DPI, --dpi DPI     If writing a video, what resolution should it have? Default 300.
+  -o OUTFILE, --outfile OUTFILE
+                        Where should we write the tab separated results?
+                        Default: dirname/analysis.txt where "dirname" is the directory containing
+                        the first image provided.
+  -w WRITE_VIDEO, --write-video WRITE_VIDEO
+                        Write videos of samples to this directory.
+  -n NCPU, --ncpu NCPU  How many images to process in parallel.
+  -d DPI, --dpi DPI     If writing a video, what resolution should it have? Default: 150
   -s FRAMESTEP, --framestep FRAMESTEP
-                        If writing a video, how many milliseconds should each image be displayed for.
-                        E.g. framestep=100 (default) means 10 images will be displayed per second.
+                        If writing a video, how many milliseconds should each image be
+                        displayed for. E.g. framestep=50 (default) means 20
+                        images will be displayed per second.
+  --normalise {uniform,nonuniform}
+                        Normalise the image background colour before leaf analysis.
+                        Default: no normalisation. See also 'infest-norm'
+  -t {threshold,otsu,watershed,original,none}, --masktype {threshold,otsu,watershed,original,none}
+                        What algorithm to use to detect the background. Default: watershed
 ```
 
-#### Output
-`analyse.txt` file created in the  `mpath` directory containing 3 columns: the **id** of leaf, the **time** extracted from pictures name, the **lesion_area** and the **leaf_area**.
 
-If `--write-video` is given a directory, mpeg videos will be written to that directory.
+#### Output
+
+A tab separated file with 6 columns:
+
+| column      | type   | description                                                   |
+|-------------|--------|---------------------------------------------------------------|
+| id          | string | The sample id of the leaf                                     |
+| time        | int    | The time point that the measurement is from                   |
+| lesion_area | int    | The number of pixels where the (1.1 * red) > green            |
+| leaf_area   | int    | lesion_area + the number of pixels where (1.1 * red) < green  |
+| ichloro_sum | float  | The chlorophyll content index                                 |
+| x           | float  | The x mid-point of the bounding box given in the layout file  |
+| y           | float  | The y mid-point of the bounding box given in the layout file  |
+
+An example result is provided in `examples/analysis.tsv`
+
+If `--write-video` is given a directory, mpeg4 videos of each leaf will be written to that directory.
+The directory will be created if it doesn't already exist.
+
+> Writing the animations is quite slow. A regular analysis of ~400 images might take 2 mins to complete,
+> but then the animations could take a few hours to write.
+> If you want to experiment with different `--masktype` values, I suggest you run
+> it without animations first and then run with animations for the final run.
 
 
 #### Examples
 
 
 ```
-# Processes images between 0 and 400.
-infest mpath -f 0 -l 400
-# Same as above
-infest mpath -l 400
+# Runs the default pipeline.
+# Results will be in my_pictures/analyse.txt
+infest my_pictures/grid_layout/grid_layout.layout my_pictures/*.jpg
 
-# Write animations and use 4 cpus.
-infest mpath --write-video mpath_animations --ncpu 4
+infest \
+  --masktype original \
+  my_pictures/grid_layout/grid_layout.layout \
+  my_pictures/*.jpg
+
+# As above but using the original background removal method.
+
+# Runs the above but using 4 cpus, writing animations 
+# into a new folder "my_animations", and providing an explicit out
+# file name.
+# Note that writing the animations can take a long time.
+infest --write-video my_animations \
+  --ncpu 4 \
+  --outfile my_analysis.tsv \
+  my_pictures/grid_layout/grid_layout.layout \
+  my_pictures/*.jpg
 ```
 
 
@@ -113,10 +180,10 @@ options:
                         this should be the mpeg filename.
                         If a single image is given, this should be the jpeg filename.
                         Default: grid_layout/panel.jpg, grid_layout/panel/{0..1}.jpg, grid_layout/panel.mpeg
-  -d DPI, --dpi DPI     What resolution should the image have? Default: 300
+  -d DPI, --dpi DPI     What resolution should the image have? Default: 150
   -s FRAMESTEP, --framestep FRAMESTEP
                         If writing a video, how many milliseconds should each image be displayed for.
-                        E.g. framestep=100 (default) means 10 images will be displayed per second.
+                        E.g. framestep=50 (default) means 20 images will be displayed per second.
 ```
 
 
@@ -134,7 +201,7 @@ A depending on the number of images provided:
 # Single image
 infest-check-layout -o grid_layout/panel.jpg layout.tsv 0.jpg
 
-# Multiple images, will create a directory grid_layout/panel
+# Multiple images, will create a directory called 'grid_layout/panel'
 infest-check-layout -o grid_layout/panel layout.tsv *.jpg
 
 # A video
@@ -153,58 +220,44 @@ and recalibrates the image to have a more normal colour balance.
 By default, this recalibration applies non-uniformly across the image.
 It is common, for example, for growth lights to illuminate the center of the nauvitron more than the edges.
 Normalising to a single value typically causes the center to be saturated and the edges to be a bit too dark.
-Instead, we find mean colour balances in a non-overlapping grid, and interpolate the what the expected values of the white background would have been behind the leaves using a gaussian process regressor (which simultaneously smoothes the signal).
-Finally, a strong gaussian blur is applied to avoid issues associated with the hard edges from the non-overlapping grid.
+Instead, we find mean colour balances in a non-overlapping grid, and find a smoothed background colour gradient using b-splines, which simultaneously interpolates the expected values of the white background would have been behind the leaves.
 
 You can apply a uniform recalibration by supplying the `--uniform` parameter.
-This gives reasonable results and is much faster.
+If there is little apparent lighting difference across the image this gives reasonable results.
+
+The background detection can be difficult in some cases and may affect the results.
+The "watershed" method is the most accurate, but is a bit slower. Use this for images with especially dark patches.
+For most cases the default "otsu" method works well, but may occasionally fail to mask out very light sections of the leaf.
+In practise this doesn't matter much because the spline isn't strongly affected by extreme values.
+Finally, although providing the layout grid (the same one used in the final `infest` program) is optional, it is highly recommended if you have very uneven lighting.
+Sometimes the background detection will think a particularly dark patch of background is a leaf, and the background won't be normaliseed. Adding the layout simply excludes these regions.
+
+
 
 ```
-usage: infest-norm [-h] [-o OUTDIR] [-u] [-g GRIDSIZE] [-s SIGMA] [-n NITER] images [images ...]
+usage: infest-norm [-h] [-l LAYOUT] [-o OUTDIR] [-u] [-g GRIDSIZE] [-m MINSIZE] [-t {threshold,otsu,watershed}] [-n NCPU]
+                   images [images ...]
 
 positional arguments:
   images                The path to the image you want to overlay the layout onto.
 
 options:
   -h, --help            show this help message and exit
+  -l LAYOUT, --layout LAYOUT
+                        Provide the locations of the leaves to help in finding the background.
   -o OUTDIR, --outdir OUTDIR
                         Where to save the output file(s) to.
   -u, --uniform         Instead of applying region specific normalisation, normalise by average background
   -g GRIDSIZE, --gridsize GRIDSIZE
-                        How big should the grid be? NOTE: Smaller values use more memory. Default: 100
-  -s SIGMA, --sigma SIGMA
-                        The sigma value for gaussian blurring. Default: 5.
-  -n NITER, --niter NITER
-                        How many iterations of blurring should the background interpolation have?
-                        NOTE: This needs to increase if gridsize is increased. Default: 5
+                        How big should the grid be? NOTE: Smaller values use more memory. Default: 10
+  -m MINSIZE, --minsize MINSIZE
+                        The minimum size of a foreground object for background detection. Default: 500.
+  -t {threshold,otsu,watershed}, --masktype {threshold,otsu,watershed}
+                        What algorithm to use to detect the background. Default: otsu
+  -n NCPU, --ncpu NCPU  How many images to process in parallel.
 ```
 
-
-## fit INFEST
-
-> **NOTE:** This method is no longer used in practise.
-> You should probably use the R script stored in [`scripts/slopes.R`](#using-the-r-script)
-
-```
-usage: infest-fit [-h] [-ft FIRST] [-g] path_in path_out
-
-positional arguments:
-  path_in               the path to the file containing temporal data computed
-                        by INFEST
-  path_out              the path to the file containing LDT and Latency
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -ft FIRST, --first FIRST
-                        the first time to consider for the computation of the
-                        LDT
-  -g, --graph           monitoring the fit of the curve
-```
-
-#### Output
-
-A txt file specified in `path_out` directory containing 9 columns: the **Id** of leaf, the parameters **a1** to **a5** resulting from the fit, the **residuals** of the fit, the lesion doubling time **LDT**, and the **Latency**
-
+This will output a single colour corrected image for each input image.
 
 
 ## Install
@@ -315,130 +368,12 @@ unzip INFEST.zip
 python3 -m pip install ./INFEST/
 ```
 
-
 ***
 
-
-## Tutorial
-> This tutorial was designed for linux users. It is easily transposable for macOS and Windows users by replacing most of command lines by fastidious mouse clicks.
-
-In this short tutorial we will use **INFEST** to compute the kinematic of lesion development of a single detached leaf of _Arabidopsis thaliana_ coined _Col-0_154_.
-
-### Download data
-Data are in the `data_tuto/` directory. Download and extract data with git:
-
-`$ git clone https://github.com/A02l01/tuto.git`
-
-
-![Col-0_154 leaf](https://github.com/A02l01/tuto/blob/master/data_tuto/pictures/grid_layout/panel.jpg)
-
-Other kinematics can be computed by adding bounding boxes of leaves in the `grid_layout.layout` file.
-
-### creation of the layout file
-- Downloaded data contains yet a layout file but in the general case you must generate this file and put in the right directory
-- If needed creates a directory  in the pictures directory and the file `grid_layout.layout` in `grid_layout/` _e.g._ `./tuto/data_tuto/pictures/grid_layout/grid_layout.layout`. Fill `grid_layout.layout` with the coordinates of the bounding rectangles of leaves. We used [ImageJ](https://imagej.nih.gov/ij/download.html) to obtain coordinates. In this example the single line added in the `grid_layout.layout` file is `Col-0_154	1410	2574	1497	2721`.
-
-with:
- - `Col-0_154` the **Id** of the leaf,
- - `1410` **ymin** of the rectangle,
- - `2574` **xmin** of the rectangle,
- - `1497` **ymax** of the rectangle,
- - `2721` **xmax** of the rectangle.
-
-> **Items are separated by a tab character**.
-
-You can then check that your layout file is ok:
-
-```
-conda activate INFEST
-cd tuto/data_tuto
-infest-check-layout -o pictures/grid_layout/panel.jpg pictures/grid_layout/grid_layout.layout pictures/0.jpg
-```
-
-Have a look at `panel.jpg` to see if the samples are well bounded.
-
-
-### Compute kinematics of Lesion
-
-
-```
-infest -n 4 --write-video ./animations pictures
-```
-
-results are stored in `./pictures/analyse.txt'`
-
-![Kinematic of lesion development for the leaf 'Col-0_154'](https://github.com/A02l01/tuto/blob/master/data_tuto/results/results.jpeg)
-
-
-### Compute the lesion LDT
-
-We show that LDT is a good proxy of the level of plant resistance in Barbacci et al. 2020. Nevertheless other proxy could be derived from the kinematics computed by INFEST.
-
-To extract the lesion doubling time (LDT) from the kinematic of lesion development using the python script `fit_INFEST.py`:
-
-```
-infest-fit --graph ./pictures/analyse.txt ./pictures/ldt.txt
-```
-
-Leading to:
-
-![Kinematic of lesion development for the leaf 'Col-0_154'](https://raw.githubusercontent.com/A02l01/d/master/d/ldt.png)
-
-
-### Using the R-script
-
-Sometimes the lesion doubling time can be difficult to determine automatically.
-The R-script helps you to interactively select the best regions to find the slopes.
-
-You'll need to have the following R packages:
-
-- ggplot2
-- ggrepel
-- segmented
-- cowplot
-
-```r
-install.packages(c("ggplot2", "ggrepel", "segmented", "cowplot"))
-```
-
-To use the script, you can download it locally:
-
-```
-curl -o slopes.R https://raw.githubusercontent.com/darcyabjones/INFEST/master/scripts/slopes.R
-```
-
-Now open an interactive R terminal (e.g. Rstudio), and `source` this script to use the main function `compute_slope`.
-
-```r
-source("slopes.R")
-
-# Load your data
-df <- read.table("./picture/analyse.txt", header = TRUE)
-
-# _IF_ your data was analysed by a previous tool
-
-if (paste(names(df), collapse = " ") != "id time lesion_area leaf_area") {
-  if ((ncol(df) == 3) && all(names(df) == c("Id", "time", "Lesion"))) {
-    names(df) <- c("id", "time", "lesion_area")
-  } else if ((ncol(df) == 3) && all(names(df) == c("Id", "time", "Lesion"))) {
-    names(df) <- c("id", "time", "lesion_area")
-  } else {
-    print("WARNING: couldn't figure out how to map your column names.")
-  }
-}
-
-compute_slope(df, "manual_slopes.tsv")
-```
-
-You'll be presented plots of the data and asked to enter ranges and check whether the data are ok.
-You may wish to view the animated videos if the curve is a bit odd.
-
-
-***
 ## Latest news
-- Version 1 available
-- A new version of INFEST is proposed by Darcy Jones and is freely available ![here](https://github.com/darcyabjones/INFEST)
 
+- Version 1 available
+- An updated version of INFEST for Python3, with support for multiple cpus, background colour correction, and different masking options was contributed by Darcy Jones ![here](https://github.com/darcyabjones/INFEST)
 
 
 ```
@@ -452,3 +387,13 @@ You may wish to view the animated videos if the curve is a bit odd.
 
 QiP Team LIPM Toulouse
 ```
+
+## Contact us 
+
+This software was primarily written by Adelin Barbacci, with contributions by Darcy Jones.
+The best way to get help is to [raise an issue on GitHub](https://github.com/A02l01/INFEST/issues).
+Alternatively, you can email us.
+
+We are on also twitter
+[AB](https://twitter.com/A_Barbacci),
+[SR](https://twitter.com/QIPlab).
