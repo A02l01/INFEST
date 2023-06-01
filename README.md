@@ -18,6 +18,34 @@ Although the software was developed to phenotype _Sclerotinia sclerotiorum_ infe
 **We list the programs and options below, but you can also follow a worked example in the [tutorial](/TUTORIAL.md).**
 
 
+## Quick install
+
+The easiest way to install INFEST is with the conda package manager.
+Instructions to install conda on linux are [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
+
+I suggest that you install INFEST in a [conda environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html), because it avoids problems where you don't have permission to install software or if you need multiple versions of the same software (which might also be incompatible with other software).
+To create an [environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) you can run the following:
+
+```
+curl -o environment.yml https://raw.githubusercontent.com/darcyabjones/INFEST/master/environment.yaml
+
+conda env create -f environment.yml -p ./condaenv
+conda activate ./condaenv
+```
+
+Then whenever you want to run the INFEST analysis in a new terminal, you just re-run `conda activate ./condaenv`.
+
+If you want to update the version of INFEST, the easist thing is to just delete this folder and re-create the environment.
+
+```
+rm -rf -- ./condaenv
+conda env create -f environment.yml -p ./condaenv
+```
+
+
+For other install options, see the [INSTALL.md](/INSTALL.md) page.
+
+
 ## Required inputs
 
 - jpeg or png images stored in a directory and named by an integer _e.g._ `1.jpg` to `N.jpg` corresponding to the time course order.
@@ -257,125 +285,47 @@ options:
   -n NCPU, --ncpu NCPU  How many images to process in parallel.
 ```
 
-This will output a single colour corrected image for each input image.
+#### Examples
+
+```
+infest-norm \
+  --outdir images_corrected \
+  --masktype watershed \
+  --ncpu 4 \
+  images_raw/*.jpg
+```
+
+Will process each image in `images_raw` ending with the extension `.jpg`.
+It will use the watershed method to distinguish the leaves from the background.
+This will output a single colour corrected image for each input image into `images_corrected`.
 
 
 ## Get example data
 
-We have a command to retrieve the example data we use for testing and development.
+We have a command to retrieve the example data we use for tutorials, testing and development.
 
 ```
+usage: infest-example [-h] [-o OUTDIR] {atha,gmax,marca}
 
-```
+positional arguments:
+  {atha,gmax,marca}     Which dataset to get.
 
-
-## Install
-
-#### Prerequisites
-
-INFEST needs these python packages to work.
-
-- scikit-image
-- numpy
-- scipy
-- pandas
-- matplotlib
-
-These can be installed using either [conda](https://docs.conda.io/en/latest/) or [pip](https://pip.pypa.io/en/stable/).
-
-
-If you want to plot animations of the leaves, you'll also need the [ffmpeg](https://ffmpeg.org/) tool installed.
-On ubuntu/debian this can be installed with:
-
-```
-sudo apt update && sudo apt install ffmpeg
-```
-
-Alternatively you can use conda.
-
-Both of the installation options described below also require git.
-
-
-#### Using Conda
-
-Install conda
-- For linux install please see: [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html)
-- For other systems: [here](https://docs.conda.io/projects/conda/en/latest/user-guide/install/#system-requirements)
-
-To create an environment you can run the following:
-
-```
-curl -o environment.yml https://raw.githubusercontent.com/darcyabjones/INFEST/master/environment.yaml
-
-conda env create -f environment.yml -n INFEST
-conda activate INFEST
-
-# OR 
-
-conda env create -f environment.yml -p ./condaenv
-conda activate ./condaenv
-```
-
-The difference is that with `-n` you can load the environment from anywhere (but files are always stored in your home directory), whereas with `-p` you can specify where the files are kept.
-On supercomputers or other places where your home disk space is small, the `-p` option is often better.
-
-Any time you want to use the program after restarting your terminal, you'll need to run the appropriate `conda activate` command as above.
-
-
-#### Using pip
-
-Pip will usually come installed with any new python installation.
-But if it isn't available, you can install it on debian/ubuntu with:
-
-```
-sudo apt update && sudo apt install python3-pip
-```
-
-> NOTE: on some operating systems you may need to substitute `python3` for `python` (e.g. some new linux versions), or `Python` (Windows CMD).
-
-I highly recommend that you install the program into a virtual environment of some kind.
-This avoids compatibility issues with other software.
-
-```
-python3 -m venv ./env 
-source ./env/bin/activate
-
-python3 -m pip install git+https://github.com/darcyabjones/INFEST.git
-```
-
-To use the virtual environment in the future, you'll need to run `source ./env/bin/activate` whenever you re-start the terminal.
-
-
-If you don't want to use a virtual environment, it's better to install as user (rather than a whole system installation).
-
-```
-python3 -m pip install --user git+https://github.com/darcyabjones/INFEST.git
-```
-
-You may then need to add that directory to your `PATH`. e.g.
-
-```
-# The directory may be different, but this is fairly common on linux.
-echo 'export PATH="${PATH:-}:${HOME}/.local/bin"' >> ~/.bashrc
+options:
+  -h, --help            show this help message and exit
+  -o OUTDIR, --outdir OUTDIR
+                        Where to save the example directory to.
+                        Will raise an error if the target directory already exits.
 ```
 
 
-#### Using pip, without git
-
-If you don't have git installed (and can't install it), you can install it like this:
+#### Examples
 
 ```
-# OPTIONAL but recommended
-# Create a conda or virtualenv
-
-# You could also do this with a browser if you prefer.
-curl -o INFEST.zip https://github.com/darcyabjones/INFEST/archive/refs/heads/master.zip
-unzip INFEST.zip
-
-# Or with --user
-# If you want to be able to edit the package and have changes work immediately you can also specify `-e` or `--editable`
-python3 -m pip install ./INFEST/
+infest-example -o ./my_atha_data atha
 ```
+
+Will create a local folder `./my_atha_data` containing some arabidopsis example data.
+
 
 ***
 
