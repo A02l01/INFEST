@@ -27,7 +27,7 @@ I suggest that you install INFEST in a [conda environment](https://conda.io/proj
 To create an [environment](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html) you can run the following:
 
 ```
-curl -o environment.yml https://raw.githubusercontent.com/darcyabjones/INFEST/master/environment.yaml
+curl -o environment.yml https://raw.githubusercontent.com/darcyabjones/INFEST/master/environment.yml
 
 conda env create -f environment.yml -p ./condaenv
 conda activate ./condaenv
