@@ -9,7 +9,7 @@ import matplotlib.patches as mpatches
 
 from matplotlib import animation as anim
 
-from typing import cast
+from typing import cast, Literal
 
 
 def main(prog: str | None = None, argv: list[str] | None = None):
@@ -35,9 +35,9 @@ def main(prog: str | None = None, argv: list[str] | None = None):
     )
     parser.add_argument(
         "-a", "--animate",
-        default=False,
-        action="store_true",
-        help="Should we write the output as an mpeg?"
+        default=None,
+        choices=["gif", "mp4"],
+        help="Should we write the output as a gif or mp4?"
     )
     parser.add_argument(
         "-o", "--outfile",
@@ -45,17 +45,17 @@ def main(prog: str | None = None, argv: list[str] | None = None):
             "Where to save the output file(s) to. "
             "If multiple images are provided, this should be a directory. "
             "If you specify multiple images and the --animate option, "
-            "this should be the mpeg filename. If a single image is given, "
+            "this should be the gif or mp4 filename. If a single image is given, "
             "this should be the jpeg filename. "
-            "Default: grid_layout/panel.jpg, grid_layout/panel/{0..1}.jpg, grid_layout/panel.mpeg"
+            "Default: grid_layout/panel.jpg, grid_layout/panel/{0..1}.jpg, grid_layout/panel.gif"
         ),
         default=None
     )
     parser.add_argument(
         "-d", "--dpi",
         type=int,
-        help="What resolution should the image have? Default: 300",
-        default=300,
+        help="What resolution should the image have? Default: 150",
+        default=150,
     )
     parser.add_argument(
         "-s", "--framestep",
@@ -87,25 +87,25 @@ def main(prog: str | None = None, argv: list[str] | None = None):
             args.dpi
         )
 
-    elif len(args.images) > 1 and args.animate:
+    elif len(args.images) > 1 and (args.animate is not None):
         if args.outfile is None:
-            outfile = pjoin("grid_layout", "panel.mpeg")
+            outfile = pjoin("grid_layout", "panel.gif")
         else:
             outfile = args.outfile
 
         if dirname(outfile) != "":
             os.makedirs(dirname(outfile), exist_ok=True)
+
         check_layout_anim(
             args.layout,
             args.images,
             outfile,
-            args.dpi,
-            args.framestep
+            filetype=args.animate,
+            dpi=args.dpi,
+            framestep=args.framestep
         )
 
     else:
-        assert (len(args.images) > 1) and not args.animate, "This shouldn't happen"
-
         if args.outfile is None:
             outfile = pjoin("grid_layout", "panel")
         else:
@@ -179,10 +179,32 @@ def check_layout_anim(
     layout: str,
     images: list[str],
     outfile: str,
+    filetype: Literal["gif", "mp4"] = "gif",
     dpi: int = 300,
     framestep: int = 100
 ):
-    fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(6, 6))
+    im0 = io.imread(images[0])
+    height = (im0.shape[0] / im0.shape[1]) * 6
+
+    if filetype == "mp4":
+        ffmpeg_extras = [
+            '-c:v',
+            "libx264",
+            "-strict",
+            "-2",
+            "-preset", "slow",
+            "-pix_fmt", "yuv420p",
+            "-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2"
+        ]
+        writer = anim.FFMpegWriter(extra_args=ffmpeg_extras)
+    elif filetype == "gif":
+        writer = anim.PillowWriter()
+    else:
+        raise ValueError(
+            "Sorry, you asked to write an animation but specified an unsupported filetype."
+        )
+
+    fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(6, height))
 
     images_dirty = [(check_file(f), f) for f in images]
     images_dirty = [(e, f) for e, f in images_dirty if e is not None]
@@ -218,7 +240,14 @@ def check_layout_anim(
         img.set_data(io.imread(fname))
         return img
 
+    ax.set_axis_off()
+    plt.subplots_adjust(
+        top = 1, bottom = 0, right = 1, left = 0,
+        hspace = 0, wspace = 0
+    )
+    plt.margins(0,0)
+
     ani = anim.FuncAnimation(fig=fig, func=update, frames=images, interval=framestep)
-    ani.save(outfile, writer="ffmpeg", dpi=dpi)
+    ani.save(outfile, writer=writer, dpi=dpi, savefig_kwargs={"pad_inches": 0})
     plt.close()
     return

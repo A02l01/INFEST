@@ -148,7 +148,7 @@ A tab separated file with 6 columns:
 
 An example result is provided in `examples/analysis.tsv`
 
-If `--write-video` is given a directory, mpeg4 videos of each leaf will be written to that directory.
+If `--write-video` is given a directory, mp4 videos of each leaf will be written to that directory.
 The directory will be created if it doesn't already exist.
 
 > Writing the animations is quite slow. A regular analysis of ~400 images might take 2 mins to complete,
@@ -200,14 +200,14 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  -a, --animate         Should we write the output as an mpeg?
+  -a, --animate         Should we write the output as an mp4?
   -o OUTFILE, --outfile OUTFILE
                         Where to save the output file(s) to.
                         If multiple images are provided, this should be a directory.
                         If you specify multiple images and the --animate option,
-                        this should be the mpeg filename.
+                        this should be the mp4 filename.
                         If a single image is given, this should be the jpeg filename.
-                        Default: grid_layout/panel.jpg, grid_layout/panel/{0..1}.jpg, grid_layout/panel.mpeg
+                        Default: grid_layout/panel.jpg, grid_layout/panel/{0..1}.jpg, grid_layout/panel.mp4
   -d DPI, --dpi DPI     What resolution should the image have? Default: 150
   -s FRAMESTEP, --framestep FRAMESTEP
                         If writing a video, how many milliseconds should each image be displayed for.
@@ -233,7 +233,7 @@ infest-check-layout -o grid_layout/panel.jpg layout.tsv 0.jpg
 infest-check-layout -o grid_layout/panel layout.tsv *.jpg
 
 # A video
-infest-check-layout -a -o grid_layout/panel.mpeg layout.tsv *.jpg
+infest-check-layout -a -o grid_layout/panel.mp4 layout.tsv *.jpg
 ```
 
 
@@ -325,6 +325,20 @@ infest-example -o ./my_atha_data atha
 ```
 
 Will create a local folder `./my_atha_data` containing some arabidopsis example data.
+
+
+## Troubleshooting
+
+*The animations won't show in my video software*
+The earlier versions of Darcy's infest updates used a codec that wasn't compatible with many players.
+If you have animations from older versions, try running the following command in the same directory as the mpeg videos, to convert them to the more compatible mp4.
+
+```bash
+for MPG in *.mpeg
+do
+    ffmpeg -i "${MPG}" -c:v libx264 -strict -2 -preset slow -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -f mp4 "${MPG%.mpeg}.mp4"
+done
+```
 
 
 ***

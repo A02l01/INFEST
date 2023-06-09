@@ -11,13 +11,13 @@
 
 from os.path import join as pjoin
 from typing import Literal
-import logging
+# import logging
 
 import numpy as np
 from skimage import io
 from matplotlib import pyplot as plt
 
-from .leaf import Leaf
+# from .leaf import Leaf
 from .panel import Panel
 
 
@@ -35,16 +35,39 @@ def write_animation(
     images_leaf,
     images_ichloro,
     where_to,
-    dpi=300,
+    filetype: Literal["gif", "mp4"] = "gif",
+    dpi=150,
     framestep=100,
 ):
     from matplotlib import animation as anim
 
+    if filetype == "mp4":
+        ffmpeg_extras = [
+            '-c:v',
+            "libx264",
+            "-strict",
+            "-2",
+            "-preset", "slow",
+            "-pix_fmt", "yuv420p",
+            "-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2"
+        ]
+        writer = anim.FFMpegWriter(extra_args=ffmpeg_extras)
+    elif filetype == "gif":
+        writer = anim.PillowWriter()
+    else:
+        raise ValueError(
+            "Sorry, you asked to write an animation but specified an unsupported filetype."
+        )
+
     print(f"- {sample}")
+
+    #height, width = io.imread(images_orig[0]).shape
+    height_per_image = 1.5
+
     fig, axs = plt.subplots(
         ncols=2,
         nrows=4,
-        figsize=(9, 9),
+        figsize=(6, 6),
         width_ratios=[2, 1],
         sharex=False,
     )
@@ -103,24 +126,9 @@ def write_animation(
         interval=framestep,
         repeat=True
     )
-    ani.save(pjoin(where_to, f"{sample}.mpeg"), writer="ffmpeg", dpi=dpi)
+    ani.save(pjoin(where_to, f"{sample}.{filetype}"), writer=writer, dpi=dpi)
     plt.close()
     return
-
-
-def find_layout(images: list[str]) -> str | None:
-    from os.path import dirname, exists
-    candidates = list(set(dirname(i) for i in images))
-
-    for candidate in candidates:
-        fn1 = pjoin(candidate, "grid_layout/grid_layout.layout")
-        fn2 = pjoin(candidate, "grid_layout/grid.layout")
-        if exists(fn1):
-            return fn1
-        elif exists(fn2):
-            return fn2
-
-    return None
 
 
 def find_outfile(outfile: str | None, images: list[str]) -> str:
@@ -194,34 +202,47 @@ def main(prog: str | None = None, argv: list[str] | None = None):
         "layout",
         help="Provide the locations of the leaves for quantification."
     )
+
     parser.add_argument(
         "images",
         nargs="+",
         help="The pictures you want to quantify."
     )
+
     parser.add_argument(
         "-o", "--outfile",
         default=None,
         help="Where should we write the results?"
     )
+
     parser.add_argument(
         "-w", "--write-video",
         type=str,
         help="Write videos of samples to this directory",
         default=None
     )
+
+    parser.add_argument(
+        "-a", "--animate",
+        default="gif",
+        choices=["gif", "mp4"],
+        help="Should we write the output animations as a gif or mp4?"
+    )
+
     parser.add_argument(
         "-n", "--ncpu",
         type=int,
         help="How many images to process in parallel.",
         default=1
     )
+
     parser.add_argument(
         "-d", "--dpi",
         type=int,
         help="If writing a video, what resolution should it have?",
         default=150,
     )
+
     parser.add_argument(
         "-s", "--framestep",
         type=int,
@@ -231,6 +252,7 @@ def main(prog: str | None = None, argv: list[str] | None = None):
         ),
         default=50
     )
+
     parser.add_argument(
         "--normalise",
         type=str,
@@ -240,6 +262,7 @@ def main(prog: str | None = None, argv: list[str] | None = None):
         ),
         default=None
     )
+
     parser.add_argument(
         "-t", "--masktype",
         type=str,
@@ -250,22 +273,14 @@ def main(prog: str | None = None, argv: list[str] | None = None):
 
     args = parser.parse_args(argv)
 
-    if args.layout is None:
-        layout = find_layout(args.images)
-        if layout is not None:
-            raise ValueError("Couldn't find your layout file. Please specify --layout.")
-    else:
-        layout = args.layout
-
-    assert layout is not None
-
     outfile = find_outfile(args.outfile, args.images)
 
     infest(
         images=args.images,
-        layout=layout,
+        layout=args.layout,
         outfile=outfile,
         write_video=args.write_video,
+        video_filetype=args.animate,
         leaf_mask_type=args.masktype,
         ncpu=args.ncpu,
         framestep=args.framestep,
@@ -351,6 +366,7 @@ def infest(
     leaf_mask_type: Literal["threshold", "otsu", "watershed", "original", "none"],
     normalise: Literal["uniform", "nonuniform"] | None = None,
     write_video: str | None = None,
+    video_filetype: Literal["gif", "mp4"] = "gif",
     ncpu: int = 1,
     dpi: int = 300,
     framestep: int = 100
@@ -407,6 +423,7 @@ def infest(
             wa = functools.partial(
                 write_animation,
                 where_to=write_video,
+                filetype=video_filetype,
                 dpi=dpi,
                 framestep=framestep
             )

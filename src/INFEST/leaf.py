@@ -15,6 +15,7 @@ class LeafStats(NamedTuple):
     lesion_area: int
     leaf_area: int
     ichloro_sum: float
+    mask_area: int
     time: int | None
     position: tuple[float, float] | None = None
 
@@ -26,17 +27,20 @@ class LeafStats(NamedTuple):
         lesion: np.ndarray,
         leaf: np.ndarray,
         ichloro: np.ndarray,
+        mask: np.ndarray,
         time: int | None = None,
         position: tuple[float, float] | None = None
     ) -> "LeafStats":
         lesion_area = np.sum(lesion)
         leaf_area = np.sum(leaf) + np.sum(lesion)
         ichloro_area = np.sum(ichloro)
+        mask_area = np.sum(mask)
         return cls(
             id,
             lesion_area,
             leaf_area,
             ichloro_area,
+            mask_area,
             time,
             position
         )
@@ -49,6 +53,7 @@ class LeafStats(NamedTuple):
             "lesion_area",
             "leaf_area",
             "ichloro_sum",
+            "mask_area",
             "x",
             "y"
         ])
@@ -65,6 +70,7 @@ class LeafStats(NamedTuple):
             str(self.lesion_area),
             str(self.leaf_area),
             str(round(self.ichloro_sum, 2)),
+            str(self.mask_area),
         ]
 
         if self.position is None:
@@ -90,6 +96,7 @@ class LeafStats(NamedTuple):
             "lesion_area": self.lesion_area,
             "leaf_area": self.leaf_area,
             "ichloro_sum": self.ichloro_sum,
+            "mask_area": self.mask_area,
             "x": x,
             "y": y
         }
@@ -134,11 +141,13 @@ class Leaf:
         else:
             mask_type_ = mask_type
 
+        self.mask_type = mask_type_
+
         if erode is None:
             erode = self.mask_erode
 
         if erode is None:
-            if mask_type_ in ("otsu", "watershed"):
+            if mask_type_ in ("otsu", "watershed", "none"):
                 erode_ = 2
             else:
                 erode_ = 0
@@ -150,11 +159,17 @@ class Leaf:
         elif mask_type_ == "otsu":
             mask = otsu_mask(self.img_original)
         elif mask_type_ == "watershed":
-            mask = watershed_mask(rgb2gray(self.img_original), min_object_size=100)
+            mask = watershed_mask(
+                rgb2gray(self.img_original),
+                min_object_size=self.min_object_size
+            )
         elif mask_type_ == "original":
             mask = original_mask(self.img_original)
         elif mask_type_ == "none":
-            mask = np.full(self.img_original.shape[:-1], fill_value=True)
+            mask = watershed_mask(
+                rgb2gray(self.img_original),
+                min_object_size=self.min_object_size
+            )
         else:
             raise ValueError("mask_type is invalid.")
 
@@ -169,42 +184,6 @@ class Leaf:
 
         self.mask = mask
         return mask
-
-    # Since this was only used to fill the plug when plotting
-    # the images, i've removed the definition.
-    # It doesn't help the analysis and may prevent interpretability.
-    # @staticmethod
-    # def __fill_hole(img: np.ndarray) -> np.ndarray:
-    #     from skimage.measure import label
-    #     from skimage.measure import regionprops
-    #     re = []
-    #     out = []
-    #     fill = img[:, :, 0].copy()
-    #     label_image = label(fill)
-
-    #     for region in regionprops(label_image):
-    #         minr, minc, maxr, maxc = region.bbox
-    #         temp = [int(minr), int(minc), int(maxr), int(maxc)]
-    #         re.append(temp)
-    #         out.append(temp)
-
-    #     for ii in range(0,len(re)):
-    #         for jj in range(0,len(re)):
-    #             if jj != ii :
-    #                 if (
-    #                     (re[ii][0] > re[jj][0]) &
-    #                     (re[ii][2] < re[jj][2]) &
-    #                     (re[ii][1] > re[jj][1]) &
-    #                     (re[ii][3] < re[jj][3])
-    #                 ):
-    #                     out.pop(out.index(re[ii]))
-    #                     for i in range(re[ii][0],re[ii][2]):
-    #                         for j in range(re[ii][1],re[ii][3]):
-    #                             if (img[i, j, 0] == 255):
-    #                                 img[i, j, 0] = 0
-    #                                 img[i, j, 2] = 255
-    #                     break
-    #     return img
 
     def ichloro(self):
         if self.mask is None:
@@ -231,7 +210,10 @@ class Leaf:
             new += coef * img[:, :, i]
 
         new = np.exp(new + 5.780)
-        new[~mask] = 0
+
+        if self.mask_type != "none":
+            new[~mask] = 0
+
         return np.clip(new / 255, 0, 1)
 
     def lesion(self, f: float = 1.1):
@@ -249,10 +231,13 @@ class Leaf:
         # Lesion is wherever the red is bigger than green channel.
         lesion = (f * img[:, :, 0]) > img[:, :, 1]
 
-        lesion[~mask] = False
+        if self.mask_type != "none":
+            lesion[~mask] = False
+
         return lesion.astype(int)
 
     def leaf(self, f: float = 1.1):
+
         if self.mask is None:
             mask = np.asarray(self.get_mask())
         else:
@@ -265,7 +250,10 @@ class Leaf:
 
         # leaf is wherever the green channel is bigger than red channel
         leaf = (f * img[:, :, 0]) < img[:, :, 1]
-        leaf[~mask] = False
+
+        if self.mask_type != "none":
+            leaf[~mask] = False
+
         return leaf.astype(int)
 
     def stats(
@@ -294,6 +282,7 @@ class Leaf:
             lesion=lesion_,
             leaf=leaf_,
             ichloro=ichloro_,
+            mask=self.mask,
             time=self.time,
             position=self.position
         )

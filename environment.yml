@@ -7,9 +7,9 @@ dependencies:
   - pandas
   - numpy
   - matplotlib
+  - pillow
   - scipy
   - scikit-image
-  - scikit-learn
   - ffmpeg
   - pip
   - pip:

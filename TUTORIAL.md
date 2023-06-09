@@ -73,7 +73,7 @@ This animation can be helpful in identifying samples with unusual lesions that s
 
 infest-check-layout \
   -a \
-  -o atha_example_norm.mpeg \
+  -o atha_example_norm.mp4 \
   --framestep 100 \
   atha_example/grid_layout/grid_layout.layout \
   atha_example_norm/*.jpg
