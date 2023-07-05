@@ -37,7 +37,7 @@ This makes it easy to use different versions of software etc.
 To create an environment you can run the following:
 
 ```
-curl -o environment.yml https://raw.githubusercontent.com/darcyabjones/INFEST/master/environment.yaml
+curl -o environment.yml https://raw.githubusercontent.com/darcyabjones/INFEST/master/environment.yml
 
 conda env create -f environment.yml -n INFEST
 conda activate INFEST
