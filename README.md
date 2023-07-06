@@ -118,6 +118,9 @@ options:
                         the first image provided.
   -w WRITE_VIDEO, --write-video WRITE_VIDEO
                         Write videos of samples to this directory.
+  -a {gif,mp4}, --animate {gif,mp4}
+                        If --write-video is specified, what video format should the files be?
+                        Default: mp4, requires ffmpeg. GIF has no additional dependencies.
   -n NCPU, --ncpu NCPU  How many images to process in parallel.
   -d DPI, --dpi DPI     If writing a video, what resolution should it have? Default: 150
   -s FRAMESTEP, --framestep FRAMESTEP
@@ -148,7 +151,7 @@ A tab separated file with 6 columns:
 
 An example result is provided in `examples/analysis.tsv`
 
-If `--write-video` is given a directory, mp4 videos of each leaf will be written to that directory.
+If `--write-video` is given a directory, mp4 (or gif) videos of each leaf will be written to that directory.
 The directory will be created if it doesn't already exist.
 
 > Writing the animations is quite slow. A regular analysis of ~400 images might take 2 mins to complete,
@@ -200,14 +203,18 @@ positional arguments:
 
 options:
   -h, --help            show this help message and exit
-  -a, --animate         Should we write the output as an mp4?
+  -a {gif,mp4}, --animate {gif,mp4}
+                        Should we write the output as a gif or mp4?
+                        Default will predict from extension if outfile is given.
+                        This option is provided in case you want a gif or mp4 but don't want the usual extension,
+                        or you don't want to explicitly set the outfile name but want an animation.
   -o OUTFILE, --outfile OUTFILE
                         Where to save the output file(s) to.
                         If multiple images are provided, this should be a directory.
                         If you specify multiple images and the --animate option,
-                        this should be the mp4 filename.
+                        this should be the mp4 or gif filename.
                         If a single image is given, this should be the jpeg filename.
-                        Default: grid_layout/panel.jpg, grid_layout/panel/{0..1}.jpg, grid_layout/panel.mp4
+                        Default: grid_layout/panel.jpg, grid_layout/panel/{0..1}.jpg, grid_layout/panel.mp4, grid_layout/panel.gif
   -d DPI, --dpi DPI     What resolution should the image have? Default: 150
   -s FRAMESTEP, --framestep FRAMESTEP
                         If writing a video, how many milliseconds should each image be displayed for.
@@ -220,7 +227,7 @@ options:
 A depending on the number of images provided:
 - Single JPEG image showing leaf positions in the image.
 - Multiple JPEG images in a directory.
-- A single MPEG video.
+- A single MPEG or GIF video.
 
 
 #### Examples
@@ -233,7 +240,10 @@ infest-check-layout -o grid_layout/panel.jpg layout.tsv 0.jpg
 infest-check-layout -o grid_layout/panel layout.tsv *.jpg
 
 # A video
-infest-check-layout -a -o grid_layout/panel.mp4 layout.tsv *.jpg
+infest-check-layout -a mp4 -o grid_layout/panel.mp4 layout.tsv *.jpg
+
+# Equivalently
+infest-check-layout -o grid_layout/panel.mp4 layout.tsv *.jpg
 ```
 
 

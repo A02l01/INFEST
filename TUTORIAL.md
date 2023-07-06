@@ -72,7 +72,7 @@ This animation can be helpful in identifying samples with unusual lesions that s
 # Normally (with ~300 images) the default is good.
 
 infest-check-layout \
-  -a \
+  -a mp4 \
   -o atha_example_norm.mp4 \
   --framestep 100 \
   atha_example/grid_layout/grid_layout.layout \

@@ -224,9 +224,12 @@ def main(prog: str | None = None, argv: list[str] | None = None):
 
     parser.add_argument(
         "-a", "--animate",
-        default="gif",
+        default="mp4",
         choices=["gif", "mp4"],
-        help="Should we write the output animations as a gif or mp4?"
+        help=(
+            "If --write-video is specified, what video format should the files be? "
+            "Should we write the output animations as a gif or mp4?"
+        )
     )
 
     parser.add_argument(

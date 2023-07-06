@@ -35,9 +35,13 @@ def main(prog: str | None = None, argv: list[str] | None = None):
     )
     parser.add_argument(
         "-a", "--animate",
-        default=None,
         choices=["gif", "mp4"],
-        help="Should we write the output as a gif or mp4?"
+        help=(
+            "Should we write the output as a gif or mp4? "
+            "Default will predict from extension if outfile is given. "
+            "This option is provided in case you want a gif or mp4 but don't want the usual extension, "
+            "or you don't want to explicitly set the outfile name but want an animation."
+        )
     )
     parser.add_argument(
         "-o", "--outfile",
@@ -47,7 +51,7 @@ def main(prog: str | None = None, argv: list[str] | None = None):
             "If you specify multiple images and the --animate option, "
             "this should be the gif or mp4 filename. If a single image is given, "
             "this should be the jpeg filename. "
-            "Default: grid_layout/panel.jpg, grid_layout/panel/{0..1}.jpg, grid_layout/panel.gif"
+            "Default: grid_layout/panel.jpg, grid_layout/panel/{0..1}.jpg, grid_layout/panel.mp4, grid_layout/panel.gif"
         ),
         default=None
     )
@@ -69,6 +73,22 @@ def main(prog: str | None = None, argv: list[str] | None = None):
 
     args = parser.parse_args(argv)
 
+    if args.animate is None:
+        if args.outfile is None:
+            raise ValueError(
+                "If the -a flag is not provided, you need to specify an "
+                "--outfile so we can infer the filetype from the extension."
+            )
+
+        if args.outfile.endswith(".gif"):
+            animate = "gif"
+        elif args.outfile.endswith(".mp4") or args.outfile.endswith(".mpeg"):
+            animate = "mp4"
+        else:
+            animate = "mp4"
+    else:
+        animate = args.animate
+
     if len(args.images) == 1:
         if args.animate:
             raise ValueError("You specified --animate but only provided one image.")
@@ -87,9 +107,9 @@ def main(prog: str | None = None, argv: list[str] | None = None):
             args.dpi
         )
 
-    elif len(args.images) > 1 and (args.animate is not None):
+    elif len(args.images) > 1 and (animate is not None):
         if args.outfile is None:
-            outfile = pjoin("grid_layout", "panel.gif")
+            outfile = pjoin("grid_layout", f"panel.{animate}")
         else:
             outfile = args.outfile
 
@@ -100,7 +120,7 @@ def main(prog: str | None = None, argv: list[str] | None = None):
             args.layout,
             args.images,
             outfile,
-            filetype=args.animate,
+            filetype=animate,
             dpi=args.dpi,
             framestep=args.framestep
         )
