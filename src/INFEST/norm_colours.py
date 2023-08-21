@@ -217,10 +217,7 @@ def correct_nonuniform(
 
 
 def main(prog: str | None = None, argv: list[str] | None = None):
-    import functools
     from os.path import basename
-    from os import makedirs
-    from multiprocessing import Pool
 
     if prog is None:
         prog = sys.argv[0]
@@ -287,22 +284,49 @@ def main(prog: str | None = None, argv: list[str] | None = None):
     )
     args = parser.parse_args(argv)
 
-    makedirs(args.outdir, exist_ok=True)
+    apply_norm_parallel(
+        args.images,
+        args.outdir,
+        args.uniform,
+        args.layout,
+        args.minsize,
+        args.gridsize,
+        args.masktype,
+        args.ncpu
+    )
 
-    with Pool(args.ncpu) as p:
-        p.map(
+    return
+
+
+def apply_norm_parallel(
+    images,
+    outdir,
+    uniform,
+    layout,
+    minsize,
+    gridsize,
+    masktype,
+    ncpu=1
+):
+    import functools
+    from multiprocessing import Pool
+    from os import makedirs
+
+    makedirs(outdir, exist_ok=True)
+    with Pool(ncpu) as p:
+        pnames = p.map(
             functools.partial(
                 norm_one,
-                outdir=args.outdir,
-                uniform=args.uniform,
-                layout=args.layout,
-                minsize=args.minsize,
-                gridsize=args.gridsize,
-                masktype=args.masktype
+                outdir=outdir,
+                uniform=uniform,
+                layout=layout,
+                minsize=minsize,
+                gridsize=gridsize,
+                masktype=masktype
             ),
-            args.images
+            images
         )
-    return
+    return pnames
 
 
 def norm_one(img_path, outdir, uniform, layout, minsize, gridsize, masktype):
@@ -348,5 +372,7 @@ def norm_one(img_path, outdir, uniform, layout, minsize, gridsize, masktype):
         )
         normed = panorm.img_original
 
-    io.imsave(pjoin(outdir, basename(img_path)), normed)
-    return
+    full_path = pjoin(outdir, basename(img_path))
+    io.imsave(full_path, normed)
+    plt.close()
+    return full_path

@@ -1,10 +1,26 @@
 #!/usr/bin/env python3
 
+import sys
+
 import pandas as pd
 import numpy as np 
 
 from matplotlib import pyplot as plt
 from typing import NamedTuple
+
+
+class GompertzZeroDiversityException(Exception):
+
+    def __init__(self, msg):
+        self.msg = msg
+        return
+
+
+class GompertzTooFewObservations(Exception):
+
+    def __init__(self, msg):
+        self.msg = msg
+        return
 
 
 class GompertzCoefs(NamedTuple):
@@ -29,7 +45,7 @@ class GompertzCoefs(NamedTuple):
         slope: float | None = None,
         yintercept: float | None = None,
         sd: float | None = None,
-        statistic: float | None = None
+        statistic: str | None = None
     ) -> "GompertzCoefs":
         return self.__class__(
             sample if (sample is not None) else self.sample,
@@ -74,22 +90,43 @@ class Gompertz(object):
 
         self.reset()
 
-        U = np.max(y) * 1.05
-        L = np.min(y) * 0.95
+        r = np.max(y) - np.min(y)
+        if (r == 0):
+            raise GompertzZeroDiversityException(
+                f"Sample {self.sample} minimum and maximum values the same, we have to skip it."
+            )
+
+        U = np.max(y) + (r * 0.05)
+        L = np.min(y) - (r * 0.05)
+
+        # Avoid some invalid values going into logs
+        L = max([L, 0.0])
+
 
         ## Linear regression on pseudo y values
         pseudoY = np.log(-np.log((y - L) / (U - L)))
         mask = np.isfinite(pseudoY)
 
+        if np.sum(mask) < 3:
+            raise GompertzTooFewObservations(
+                f"Sample {self.sample} has too few values after removing in-calculable values. "
+                f"Only {np.sum(mask)} values remain from {np.size(mask)}."
+            )
+
         lm = linregress(X[mask], pseudoY[mask])
         k = lm.intercept
         kG = -lm.slope
-        Ti = k / kG
 
+        Ti = k / kG
         self.U = U
         self.L = L
         self.Ti = Ti
         self.kG = kG
+
+        if kG == 0:
+            print(k, Ti, L, U)
+            print(y)
+
         return
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> "Gompertz":
@@ -153,7 +190,10 @@ class Gompertz(object):
         Ti:float,
         kG: float
     ) -> np.ndarray:
-        return L + (U - L) * np.exp(-np.exp(-kG * (X - Ti)))
+        arr = L + (U - L) * np.exp(-np.exp(-kG * (X - Ti)))
+        if np.any(np.isnan(arr)):
+            raise ValueError(f"Nans {arr}")
+        return arr
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         """ Compute a gompertz function with parameters
@@ -233,13 +273,20 @@ def fit(infile, prefix):
     with PdfPages(f"{prefix}-lesion_area.pdf") as la_pdf, \
             PdfPages(f"{prefix}-ichloro_sum.pdf") as ic_pdf:
         for sample, subdf in df.groupby("id"):
-            _, coefs, preds = Gompertz.call(
-                subdf["time"].values,
-                subdf["lesion_area"].values,
-                sample=sample
-            )
+            try:
+                _, coefs, preds = Gompertz.call(
+                    subdf["time"].values,
+                    subdf["lesion_area"].values,
+                    sample=sample
+                )
+            except GompertzZeroDiversityException as e:
+                print("WARNING: lesion_area:", e.msg, file=sys.stderr)
+                continue
+            except GompertzTooFewObservations as e:
+                print("WARNING: lesion_area:", e.msg, file=sys.stderr)
+                continue
 
-            coefs.update(statistic="lesion_area")
+            coefs = coefs.update(statistic="lesion_area")
             preds["statistic"] = "lesion_area"
             coef_results.append(coefs)
             preds_results.append(preds)
@@ -251,13 +298,23 @@ def fit(infile, prefix):
             la_pdf.savefig(fig)
             plt.close()
 
-            _, coefs, preds = Gompertz.call(
-                subdf["time"].values,
-                subdf["ichloro_sum"].values,
-                sample=sample
-            )
+        # I run this in two loops so that we can try and catch errors for
+        # lesion area and ichloro_sum separately.
+        for sample, subdf in df.groupby("id"):
+            try:
+                _, coefs, preds = Gompertz.call(
+                    subdf["time"].values,
+                    subdf["ichloro_sum"].values,
+                    sample=sample
+                )
+            except GompertzZeroDiversityException as e:
+                print("WARNING: ichloro_sum:", e.msg, file=sys.stderr)
+                continue
+            except GompertzTooFewObservations as e:
+                print("WARNING: ichloro_sum:", e.msg, file=sys.stderr)
+                continue
 
-            coefs.update(statistic="ichloro_sum")
+            coefs = coefs.update(statistic="ichloro_sum")
             preds["statistic"] = "ichloro_sum"
             coef_results.append(coefs)
             preds_results.append(preds)
@@ -270,11 +327,22 @@ def fit(infile, prefix):
             plt.close()
 
 
+    if len(coef_results) == 0:
+        assert len(preds_results) == 0, "WTF"
+        print((
+            "WARNING: After handling all of the errors and skipping bad samples, "
+            "we didn't end up with anything left!\n"
+            "WARNING: This will often happen if you are only processing a subset of files (e.g. the first 10 time points).\n"
+            "WARNING: check that your images are ok."
+        ))
+        return
+
     coef_df = pd.DataFrame(coef_results)
     coef_df.to_csv(f"{prefix}-coef.tsv", sep="\t", index=False)
 
     preds_df = pd.concat(preds_results)
     preds_df.to_csv(f"{prefix}-preds.tsv", sep="\t", index=False)
+    return
 
 
 
@@ -306,5 +374,3 @@ def main(prog: str = None, argv: list[str] | None = None):
 
     args = parser.parse_args(argv)
     fit(args.infile, args.outprefix)
-
-

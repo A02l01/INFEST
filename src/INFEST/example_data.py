@@ -46,7 +46,7 @@ def main(prog: str | None = None, argv: list[str] | None = None):
     elif args.dataset == "gmax":
         copytree(gmax_dir, args.outdir)
     elif args.dataset == "marca":
-        copytree(gmax_dir, args.outdir)
+        copytree(marca_dir, args.outdir)
     else:
         raise ValueError("This shouldn't be possible.")
 

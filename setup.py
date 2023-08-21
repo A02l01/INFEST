@@ -107,7 +107,8 @@ setup(
     # pip to create the appropriate form of executable for the target platform.
     entry_points={
         'console_scripts': [
-            'infest-quant=INFEST.infest:main',
+            'infest=INFEST.__main__:main',
+            'infest-quant=INFEST.quant:main',
             'infest-check-layout=INFEST.check_layout:main',
             'infest-norm=INFEST.norm_colours:main',
             'infest-example=INFEST.example_data:main',

@@ -4,7 +4,16 @@ import numpy as np
 from scipy import ndimage as ndi
 
 
-__names__ = ["watershed_mask", "threshold_mask", "otsu_mask", "original_mask"]
+__names__ = ["watershed_mask", "threshold_mask", "otsu_mask", "original_mask", "OTSUException"]
+
+
+class OTSUException(Exception):
+
+    """ This just makes catching it easier """
+
+    def __init__(self, e):
+        self.e = e
+        return
 
 
 def watershed_mask(
@@ -33,7 +42,14 @@ def watershed_mask(
         hist = histogram(gr)
 
     elevation_map = sobel(gr)
-    thresholds = threshold_multiotsu(gr, hist=hist)
+
+    try:
+        thresholds = threshold_multiotsu(gr, hist=hist)
+    except ValueError as e:
+        if str(e).startswith("After discretization into bins, the input image has only 1 different values."):
+            raise OTSUException(e)
+        else:
+            raise e
 
     markers = np.zeros_like(elevation_map)
     markers[gr < thresholds[0]] = 1
@@ -77,7 +93,14 @@ def otsu_mask(img: np.ndarray):
     except ValueError:
         gr = img
 
-    threshold = threshold_otsu(gr)
+    try:
+        threshold = threshold_otsu(gr)
+    except ValueError as e:
+        if str(e).startswith("After discretization into bins, the input image has only 1 different values."):
+            raise OTSUException(e)
+        else:
+            raise e
+
     mask = skiclosing(gr <= threshold, skisquare(3))
     mask = ndi.binary_fill_holes(mask)
     # This extends the object size a bit to remove any edge artifacts around edges of objects.

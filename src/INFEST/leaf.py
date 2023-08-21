@@ -134,9 +134,16 @@ class Leaf:
         mask_type: Literal["threshold", "otsu", "watershed", "original", "none"] | None = None,
         erode: int | None = None
     ):
+        import sys
         from skimage.color import rgb2gray
         from scipy import ndimage as ndi
-        from INFEST.mask import watershed_mask, threshold_mask, otsu_mask, original_mask
+        from INFEST.mask import (
+            watershed_mask,
+            threshold_mask,
+            otsu_mask,
+            original_mask,
+            OTSUException
+        )
 
         if mask_type is None:
             mask_type_ = self.mask_type
@@ -159,19 +166,34 @@ class Leaf:
         if mask_type_ == "threshold":
             mask = threshold_mask(self.img_original)
         elif mask_type_ == "otsu":
-            mask = otsu_mask(self.img_original)
-        elif mask_type_ == "watershed":
-            mask = watershed_mask(
-                rgb2gray(self.img_original),
-                min_object_size=self.min_object_size
-            )
+            try:
+                mask = otsu_mask(self.img_original)
+            except OTSUException:
+                mask = np.full(self.img_original.shape[:-1], True)
+                erode_ = 0
+                print(
+                    f"WARNING: While processing sample {self.id}, very low contrast.",
+                    f"WARNING: Skipping this timepoint.",
+                    file=sys.stderr
+                )
+
+        elif mask_type_ in ("watershed", "none"):
+            try:
+                mask = watershed_mask(
+                    rgb2gray(self.img_original),
+                    min_object_size=self.min_object_size
+                )
+            except OTSUException:
+                mask = np.full(self.img_original.shape[:-1], True)
+                erode_ = 0
+                print(
+                    f"WARNING: While processing sample {self.id}, very low contrast.",
+                    f"WARNING: Skipping this timepoint.",
+                    file=sys.stderr
+                )
+
         elif mask_type_ == "original":
             mask = original_mask(self.img_original)
-        elif mask_type_ == "none":
-            mask = watershed_mask(
-                rgb2gray(self.img_original),
-                min_object_size=self.min_object_size
-            )
         else:
             raise ValueError("mask_type is invalid.")
 
