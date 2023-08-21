@@ -114,6 +114,7 @@ class Leaf:
         position: tuple[float, float] | None = None,
         mask_type: Literal["threshold", "otsu", "watershed", "original", "none"] = "watershed",
         mask: np.ndarray | None = None,
+        exclude_mask: np.ndarray | None = None,
         mask_erode: int | None = None,
         min_object_size: int = 30
     ):
@@ -123,6 +124,7 @@ class Leaf:
         self.img_original  = img
         self.mask_type = mask_type
         self.mask = mask
+        self.exclude_mask = exclude_mask
         self.mask_erode = mask_erode
         self.min_object_size = min_object_size
         return
@@ -183,6 +185,9 @@ class Leaf:
             )
 
         self.mask = mask
+
+        if self.exclude_mask is not None:
+            self.mask[self.exclude_mask] = 0
         return mask
 
     def ichloro(self):
@@ -214,6 +219,9 @@ class Leaf:
         if self.mask_type != "none":
             new[~mask] = 0
 
+        if self.exclude_mask is not None:
+            new[self.exclude_mask] = 0
+
         return np.clip(new / 255, 0, 1)
 
     def lesion(self, f: float = 1.1):
@@ -234,6 +242,9 @@ class Leaf:
         if self.mask_type != "none":
             lesion[~mask] = False
 
+        if self.exclude_mask is not None:
+            lesion[self.exclude_mask] = False
+
         return lesion.astype(int)
 
     def leaf(self, f: float = 1.1):
@@ -253,6 +264,9 @@ class Leaf:
 
         if self.mask_type != "none":
             leaf[~mask] = False
+
+        if self.exclude_mask is not None:
+            leaf[self.exclude_mask] = False
 
         return leaf.astype(int)
 
@@ -277,12 +291,17 @@ class Leaf:
         else:
             ichloro_ = ichloro
 
+        if self.mask is None:
+            mask = np.asarray(self.get_mask())
+        else:
+            mask = np.asarray(self.mask)
+
         return LeafStats.from_images(
             id=self.id,
             lesion=lesion_,
             leaf=leaf_,
             ichloro=ichloro_,
-            mask=self.mask,
+            mask=mask,
             time=self.time,
             position=self.position
         )

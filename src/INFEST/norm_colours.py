@@ -127,7 +127,9 @@ def colour_correct_img(
             "array with pixel values between 0 and 1."
         )
 
+    background[background == 0] = np.nan
     corrected = img * (1 / background)
+    corrected[np.isnan(corrected)] = 1
     return np.clip(corrected, 0, 1)
 
 
@@ -136,12 +138,22 @@ def correct_uniform(
     min_object_size: int = 500,
     mask_type: Literal["threshold", "otsu", "watershed"] = "otsu",
     grid: np.ndarray | None = None,
-    orig: np.ndarray | None = None
+    orig: np.ndarray | None = None,
+    exclude_mask: np.ndarray | None = None
 ):
     from INFEST.mask import watershed_mask, threshold_mask, otsu_mask
 
     if np.nanmax(img) > 1:
         img = img.astype(float) / 255
+
+    masked = img.copy()
+
+    if (exclude_mask is not None) and not exclude_mask.all():
+        masked[exclude_mask] = np.nan
+
+    # We want to set any objects outside of our targets to be non-objects
+    if grid is not None:
+        masked[~grid] = np.nan
 
     if mask_type == "threshold":
         mask = threshold_mask(img)
@@ -152,12 +164,6 @@ def correct_uniform(
     else:
         raise ValueError("mask_type is invalid.")
 
-    # We want to set any objects outside of our targets to be non-objects
-    if grid is not None:
-        mask = mask.copy()
-        mask[~grid] = False
-
-    masked = img.copy()
     masked[mask] = np.nan
 
     background = find_uniform_background(masked)
@@ -174,12 +180,22 @@ def correct_nonuniform(
     size: int = 10,
     mask_type: Literal["threshold", "otsu", "watershed"] = "otsu",
     grid: np.ndarray | None = None,
-    orig: np.ndarray | None = None
+    orig: np.ndarray | None = None,
+    exclude_mask: np.ndarray | None = None
 ):
     from INFEST.mask import watershed_mask, threshold_mask, otsu_mask
 
     if np.nanmax(img) > 1:
         img = img.astype(float) / 255
+
+    masked = img.astype(float).copy()
+
+    if (exclude_mask is not None) and not exclude_mask.all():
+        masked[exclude_mask] = np.nan
+
+    # We want to set any objects outside of our targets to be non-objects
+    if grid is not None:
+        masked[~grid] = np.nan
 
     if mask_type == "threshold":
         mask = threshold_mask(img)
@@ -190,12 +206,6 @@ def correct_nonuniform(
     else:
         raise ValueError("mask_type is invalid.")
 
-    # We want to set any objects outside of our targets to be non-objects
-    if grid is not None:
-        mask = mask.copy()
-        mask[~grid] = False
-
-    masked = img.copy()
     masked[mask] = np.nan
 
     background = spline_interpolate_leaves(masked, size=size)

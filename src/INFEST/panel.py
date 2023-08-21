@@ -89,14 +89,36 @@ class Panel:
         self.leaf_mask_type = leaf_mask_type
         self.panel_mask_type = panel_mask_type
         self.time = time
+        self.img_original = image
 
         self.layout_path: str = layout
-        self.layout: dict[str, LayoutRow] = self.__parse_layout(layout)
-        self.img_original = image
+        self.__layout: dict[str, LayoutRow] | None = None
+        self.__exclude: list[LayoutRow] | None = None
+        self.__exclude_mask: np.ndarray | None = None
 
         return
 
-    def __parse_layout(self, layout: str | None = None) -> dict[str, LayoutRow]:
+    @property
+    def layout(self) -> dict[str, LayoutRow]:
+        if self.__layout is not None:
+            return self.__layout
+
+        self.__parse_layout(self.layout_path)
+        assert self.__layout is not None
+
+        return self.__layout
+
+    @property
+    def exclude(self) -> list[LayoutRow]:
+        if self.__exclude is not None:
+            return self.__exclude
+
+        self.__parse_layout(self.layout_path)
+        assert self.__exclude is not None
+
+        return self.__exclude
+
+    def __parse_layout(self, layout: str | None = None):
 
         if layout is None:
             gl = self.layout_path
@@ -107,12 +129,31 @@ class Panel:
             raise ValueError(f"The grid_layout file in {gl} does not exist.")
 
         out: dict[str, LayoutRow] = dict()
+        exclude: list[LayoutRow] = list()
 
         with open(gl, "r") as handle:
             for lr in LayoutRow.from_file(handle):
-                out[lr.id] = lr
+                if lr.id.lower() in ("exclude", "exclure"):
+                    exclude.append(lr)
+                else:
+                    out[lr.id] = lr
 
-        return out
+        self.__layout = out
+        self.__exclude = exclude
+        return
+
+    @property
+    def exclude_mask(self) -> np.ndarray:
+
+        if self.__exclude_mask is not None:
+            return self.__exclude_mask
+        
+        mask = np.full(self.img_original.shape[:-1], False)
+        for lr in self.exclude:
+            mask[lr.minr:lr.maxr, lr.minc:lr.maxc] = True
+
+        self.__exclude_mask = mask
+        return mask
 
     def __getitem__(self, key: str) -> Leaf:
         it = self.get(key)
@@ -153,13 +194,19 @@ class Panel:
                 maxc_val=self.img_original.shape[1]
             )
 
-        img = self.img_original[lr.minr:lr.maxr, lr.minc:lr.maxc]
+        # Just for typechecker
+        assert isinstance(lr, LayoutRow)
+        img = self.img_original.copy()
+        exclude_mask = self.exclude_mask[lr.minr:lr.maxr, lr.minc:lr.maxc]
+
+        img = img[lr.minr:lr.maxr, lr.minc:lr.maxc]
         return Leaf(
             lr.id,
             img,
             time=self.time,
             position=lr.get_position(),
-            mask_type=mask_type_
+            mask_type=mask_type_,
+            exclude_mask=exclude_mask
         )
 
     def __iter__(self) -> Iterator[Leaf]:
@@ -198,7 +245,8 @@ class Panel:
             self.img_original,
             min_object_size=min_object_size,
             mask_type=mask_type_,
-            grid=grid
+            grid=grid,
+            exclude_mask=self.exclude_mask
         )
         return Panel(
             corrected,
@@ -233,7 +281,8 @@ class Panel:
             min_object_size=min_object_size,
             size=size,
             mask_type=mask_type_,
-            grid=grid
+            grid=grid,
+            exclude_mask=self.exclude_mask
         )
         p = Panel(
             corrected,
@@ -276,6 +325,25 @@ class Panel:
                 lr.maxr - lr.minr,
                 fill=False,
                 edgecolor='red',
+                linewidth=2
+            )
+            ax.add_patch(rect)
+            ax.text(
+                lr.minc + (lr.maxc - lr.minc) * 0.1,
+                lr.minr + (lr.maxr - lr.minr) / 2,
+                lr.id,
+                fontsize=4,
+                color="black"
+            )
+
+        for lr in self.exclude:
+            rect = mpatches.Rectangle(
+                (lr.minc, lr.minr),
+                lr.maxc - lr.minc,
+                lr.maxr - lr.minr,
+                fill="red",
+                alpha=0.3,
+                edgecolor='black',
                 linewidth=2
             )
             ax.add_patch(rect)

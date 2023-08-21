@@ -81,13 +81,15 @@ def main(prog: str | None = None, argv: list[str] | None = None):
             )
 
         if args.outfile.endswith(".gif"):
-            animate = "gif"
+            animate: Literal["gif", "mp4"] = "gif"
         elif args.outfile.endswith(".mp4") or args.outfile.endswith(".mpeg"):
             animate = "mp4"
         else:
             animate = "mp4"
     else:
         animate = args.animate
+
+    assert animate in ("gif", "mp4"), "This shouldn't be possible"
 
     if len(args.images) == 1:
         if args.animate:
@@ -157,12 +159,14 @@ def check_layout(layout: str, inimage: str, outimage: str, dpi: int = 400):
         for line in target_f:
             tab = line.rstrip("\n").split("\t")
             minr, minc, maxr, maxc = int(tab[1]), int(tab[2]), int(tab[3]), int(tab[4])
+            is_exclude = tab[0].lower() in ("exclude", "exclure")
             rect = mpatches.Rectangle(
                 (minc, minr),
                 maxc - minc,
                 maxr - minr,
-                fill=False,
-                edgecolor='red',
+                fill="red" if is_exclude else False,
+                alpha=0.3,
+                edgecolor="black" if is_exclude else 'red',
                 linewidth=2
             )
             ax.add_patch(rect)
@@ -174,7 +178,11 @@ def check_layout(layout: str, inimage: str, outimage: str, dpi: int = 400):
                 color="black"
             )
 
-    os.makedirs(os.path.dirname(outimage), exist_ok=True)
+    dn = os.path.dirname(outimage)
+
+    if dn != "":
+        os.makedirs(dn, exist_ok=True)
+
     fig.savefig(outimage, dpi=dpi)
 
 
@@ -226,8 +234,8 @@ def check_layout_anim(
 
     fig, ax = plt.subplots(ncols=1, nrows=1, figsize=(6, height))
 
-    images_dirty = [(check_file(f), f) for f in images]
-    images_dirty = [(e, f) for e, f in images_dirty if e is not None]
+    images_dirty_tmp = [(check_file(f), f) for f in images]
+    images_dirty = [(e, f) for e, f in images_dirty_tmp if e is not None]
     images = [
         f for _, f
         in sorted(images_dirty, key=lambda tup: tup[0])
