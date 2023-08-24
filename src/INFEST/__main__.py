@@ -16,7 +16,7 @@ def main(prog: str | None = None, argv: list[str] | None = None):
     parser = argparse.ArgumentParser(prog=basename(prog))
     parser.add_argument(
         "layout",
-        type=argparse.FileType("r"),
+        type=str,
         help="Provide the locations of the leaves in your images."
     )
 
@@ -226,8 +226,8 @@ def pipeline(
         layout,
         quant_outfile,
         leaf_mask_type=qu_masktype,
-        write_video=None if should_animate_quant else quant_animdir,
-        video_filetype="mp4" if should_animate_quant else animate,
+        write_video=quant_animdir if should_animate_quant else None,
+        video_filetype="mp4" if (animate == "none") else animate,
         ncpu=ncpu,
         dpi=dpi,
         framestep=framestep
