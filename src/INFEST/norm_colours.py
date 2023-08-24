@@ -229,27 +229,34 @@ def main(prog: str | None = None, argv: list[str] | None = None):
     parser.add_argument(
         "images",
         nargs="+",
-        help="The path to the image you want to overlay the layout onto."
+        help="The path(s) to the image(s) that you want to normalise colours of."
     )
+
     parser.add_argument(
         "-l", "--layout",
         default=None,
-        help="Provide the locations of the leaves to help in finding the background."
+        help=(
+            "Provide the locations of the leaves to help in finding the background "
+            "(Recommended)"
+        )
     )
+
     parser.add_argument(
         "-o", "--outdir",
-        help=("Where to save the output file(s) to."),
+        help=("The directory where the normalised file(s) should be written."),
         default="images_corrected"
     )
+
     parser.add_argument(
         "-u", "--uniform",
         action="store_true",
         default=False,
         help=(
             "Instead of applying region specific normalisation, "
-            "normalise by average background"
+            "normalise by the average background"
         ),
     )
+
     parser.add_argument(
         "-g", "--gridsize",
         type=int,
@@ -260,6 +267,7 @@ def main(prog: str | None = None, argv: list[str] | None = None):
             "Default: 10"
         ),
     )
+
     parser.add_argument(
         "-m", "--minsize",
         type=int,
@@ -269,19 +277,28 @@ def main(prog: str | None = None, argv: list[str] | None = None):
             "for background detection. Default: 500."
         ),
     )
+
     parser.add_argument(
         "-t", "--masktype",
         type=str,
         choices=["threshold", "otsu", "watershed"],
         default="otsu",
-        help="What algorithm to use to detect the background. Default: otsu",
+        help=(
+            "What algorithm to use to detect the background during colour normalisation. "
+            "Note that the threshold method is not recommended, and was included for illustrative purposes. "
+            "OTSU (the default) usually yeilds good results, but may yield weird results if you have "
+            "lots of dark patches (e.g. shadows) or if your leaves have a similar colour as your background. "
+            "The watershed method is more accurate for those kinds of situations, but takes a bit longer."
+        )
     )
+
     parser.add_argument(
         "-n", "--ncpu",
         type=int,
         help="How many images to process in parallel.",
         default=1
     )
+
     args = parser.parse_args(argv)
 
     apply_norm_parallel(

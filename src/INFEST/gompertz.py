@@ -338,9 +338,13 @@ def fit(infile, prefix):
         return
 
     coef_df = pd.DataFrame(coef_results)
+
+    # Rename for consistency with quant.
+    coef_df.rename(columns={"sample": "id"}, inplace=True)
     coef_df.to_csv(f"{prefix}-coef.tsv", sep="\t", index=False)
 
     preds_df = pd.concat(preds_results)
+    preds_df.rename(columns={"sample": "id"}, inplace=True)
     preds_df.to_csv(f"{prefix}-preds.tsv", sep="\t", index=False)
     return
 
@@ -361,7 +365,7 @@ def main(prog: str = None, argv: list[str] | None = None):
     parser.add_argument(
         "infile",
         type=argparse.FileType("r"),
-        help="The time-series data."
+        help="The time-series data from infest-quant."
     )
 
     parser.add_argument(

@@ -45,6 +45,34 @@ infest-check-layout \
 Have a look at `atha_example/grid_layout/panel.jpg` to see if the samples are well bounded.
 
 
+### The pipeline
+
+Note that from this point, once you're sure that the layout file contains your leaves properly,
+you may decide to run the pipeline version of the tool.
+This runs all of the steps that we describe below (except the R stuff) in one step.
+If you want extra control over the process, keep going.
+Otherwise, you can get something similar like this...
+
+
+```
+# Without animations
+infest \
+  --outdir pipeline_results \
+  --ncpu 4 \
+  atha_example/grid_layout/grid_layout.layout \
+  atha_example/*.jpg
+
+
+# With animations
+infest \
+  --outdir pipeline_results_anim \
+  --ncpu 4 \
+  --animate mp4 \
+  atha_example/grid_layout/grid_layout.layout \
+  atha_example/*.jpg
+```
+
+
 ### Normalise the colours
 
 We use blue LED growth lights when running the imaging experiments.
@@ -85,12 +113,15 @@ Have a look at the video and see if everything looks good.
 ### Compute kinematics of Lesion
 
 
+This step looks through each image and each leaf from your layout file, and computes the number of lesion pixels, leaf pixels,
+and other statistics we can use to evaluate the severity of disease lesion progression.
+
 ```
 # Note that we're setting the --framestep here because we only have 30 images,
 # so the animation is very short with 50 milliseconds per image (20 per second).
 # Normally (with ~300 images) the default is good.
 
-infest \
+infest-quant \
   --ncpu 4 \
   --write-video ./leaf_animations \
   --framestep 100 \
@@ -101,10 +132,30 @@ infest \
 head my_analysis.tsv
 ```
 
+
 So you now have the leaf and lesion areas for each leaf at each time step.
 In the folder `leaf_animations` you should have a video for each leaf showing the lesion development alongside the measured values.
 
 ![Lesion development](examples/example.gif)
+
+
+### Fit automated Gompertz population growth or decline curves
+
+This is an optional step, but potentially useful.
+The output of `infest-quant` could be analysed easily in R etc.
+But you'll need to find a way of extracting the growth or decay rate of the time-series data.
+Many of us have used manual methods fitting linear regression on a specified range of points (i.e. the exponential growth phase).
+
+This method fits a restricted curve automatically.
+It won't necessarily be everyones favourite, but it's usually pretty good and it's super fast.
+So even as a quick check it's worth running.
+
+```
+infest-predict --outprefix my_predictions- my_analysis.tsv
+```
+
+You should now have a coefs and preds tab files summarising the model, and some PDFs showing the fit curves.
+
 
 
 ### Finding the slope to summarise lesion growth velocity.

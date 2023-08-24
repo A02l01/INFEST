@@ -15,15 +15,15 @@ def main(prog: str | None = None, argv: list[str] | None = None):
 
     parser = argparse.ArgumentParser(prog=basename(prog))
     parser.add_argument(
-        "-l", "--layout",
-        default=argparse.FileType,
-        help="Provide the locations of the leaves to help in finding the background."
+        "layout",
+        type=argparse.FileType("r"),
+        help="Provide the locations of the leaves in your images."
     )
 
     parser.add_argument(
         "images",
         nargs="+",
-        help="The path to the image you want to overlay the layout onto."
+        help="The path(s) to the image(s) you want to process."
     )
 
     parser.add_argument(
@@ -33,7 +33,7 @@ def main(prog: str | None = None, argv: list[str] | None = None):
     )
 
     parser.add_argument(
-        "--cc-type",
+        "--cn-type",
         type=str,
         choices=["nonuniform", "uniform", "none"],
         default="nonuniform",
@@ -43,7 +43,7 @@ def main(prog: str | None = None, argv: list[str] | None = None):
     )
 
     parser.add_argument(
-        "--cc-gridsize",
+        "--cn-gridsize",
         type=int,
         default=10,
         help=(
@@ -52,21 +52,29 @@ def main(prog: str | None = None, argv: list[str] | None = None):
             "Default: 10"
         ),
     )
+
     parser.add_argument(
-        "--cc-minsize",
+        "--cn-minsize",
         type=int,
         default=500,
         help=(
             "The minimum size of a foreground object "
             "for background detection. Default: 500."
-        ),
+        )
     )
+
     parser.add_argument(
-        "--cc-masktype",
+        "--cn-masktype",
         type=str,
         choices=["threshold", "otsu", "watershed"],
         default="otsu",
-        help="What algorithm to use to detect the background. Default: otsu",
+        help=(
+            "What algorithm to use to detect the background during colour normalisation. "
+            "Note that the threshold method is not recommended, and was included for illustrative purposes. "
+            "OTSU (the default) usually yeilds good results, but may yield weird results if you have "
+            "lots of dark patches (e.g. shadows) or if your leaves have a similar colour as your background. "
+            "The watershed method is more accurate for those kinds of situations, but takes a bit longer."
+        )
     )
 
     parser.add_argument(
@@ -74,7 +82,10 @@ def main(prog: str | None = None, argv: list[str] | None = None):
         type=str,
         choices=["threshold", "otsu", "watershed", "original", "none"],
         default="none",
-        help="What algorithm to use to detect the background. Default: none",
+        help=(
+            "What algorithm to use to detect the background during quantification. "
+            "Default: none"
+        )
     )
 
     parser.add_argument(
@@ -87,7 +98,24 @@ def main(prog: str | None = None, argv: list[str] | None = None):
     parser.add_argument(
         "-a", "--animate",
         choices=["mp4", "gif", "none"],
-        default="none"
+        default="none",
+        help=(
+            "Write the layouts and quantifiation steps as animations in this format. "
+            "By default, no animations are written. "
+            "If you only want animations for layout or quantification, use the --animate-steps option."
+        )
+
+    )
+
+    parser.add_argument(
+        "--animate-steps",
+        choices=["layout", "quant", "both"],
+        default="both",
+        help=(
+            "Get the animations for only the check-layout step or the quantification step. "
+            "Only used if --animate is specified. "
+            "Default: both"
+        )
     )
 
     parser.add_argument(
@@ -103,22 +131,23 @@ def main(prog: str | None = None, argv: list[str] | None = None):
     parser.add_argument(
         "--dpi",
         type=int,
-        default=150
+        default=150,
+        help="What resolution should the output images and animations have? Default: 150"
     )
 
     args = parser.parse_args(argv)
-
 
     pipeline(
         args.layout,
         args.images,
         args.outdir,
-        args.cc_type,
-        args.cc_gridsize,
-        args.cc_minsize,
-        args.cc_masktype,
+        args.cn_type,
+        args.cn_gridsize,
+        args.cn_minsize,
+        args.cn_masktype,
         args.qu_masktype,
         args.animate,
+        args.animate_steps,
         args.framestep,
         args.dpi,
         args.ncpu
@@ -130,12 +159,13 @@ def pipeline(
     layout,
     images,
     outdir,
-    cc_type,
-    cc_gridsize,
-    cc_minsize,
-    cc_masktype,
+    cn_type,
+    cn_gridsize,
+    cn_minsize,
+    cn_masktype,
     qu_masktype,
     animate,
+    animate_steps,
     framestep,
     dpi,
     ncpu=1
@@ -151,20 +181,20 @@ def pipeline(
 
     makedirs(outdir, exist_ok=True)
 
-    if cc_type != "none":
-        cc_outdir = pjoin(outdir, "colour_normed")
+    if cn_type != "none":
+        cn_outdir = pjoin(outdir, "colour_normed")
         images = apply_norm_parallel(
             images,
-            cc_outdir,
-            uniform=cc_type == "uniform",
+            cn_outdir,
+            uniform=cn_type == "uniform",
             layout=layout,
-            minsize=cc_minsize,
-            gridsize=cc_gridsize,
-            masktype=cc_masktype,
+            minsize=cn_minsize,
+            gridsize=cn_gridsize,
+            masktype=cn_masktype,
             ncpu=ncpu
         )
 
-    if animate == "none":
+    if (animate == "none") or (animate_steps == "quant"):
         cl_outdir = pjoin(outdir, "check_layout")
         makedirs(cl_outdir, exist_ok=True)
 
@@ -189,14 +219,15 @@ def pipeline(
     quant_outfile = pjoin(outdir, "quantification_results.tsv")
     quant_animdir = pjoin(outdir, "quantification_animations")
 
+    should_animate_quant = (animate != "none") and (animate_steps != "layout")
+
     infest(
         images,
         layout,
         quant_outfile,
         leaf_mask_type=qu_masktype,
-        normalise=None,
-        write_video=None if (animate == "none") else quant_animdir,
-        video_filetype="mp4" if (animate == "none") else animate,
+        write_video=None if should_animate_quant else quant_animdir,
+        video_filetype="mp4" if should_animate_quant else animate,
         ncpu=ncpu,
         dpi=dpi,
         framestep=framestep

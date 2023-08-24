@@ -212,13 +212,17 @@ def main(prog: str | None = None, argv: list[str] | None = None):
     parser.add_argument(
         "-o", "--outfile",
         default=None,
-        help="Where should we write the results?"
+        help=(
+            "Where should we write the results? "
+            "Default: {dirname}/analysis.txt where '{dirname}' "
+            "is the directory containing the first image provided."
+        )
     )
 
     parser.add_argument(
         "-w", "--write-video",
         type=str,
-        help="Write videos of samples to this directory",
+        help="Write videos of each leaf to this directory",
         default=None
     )
 
@@ -228,7 +232,8 @@ def main(prog: str | None = None, argv: list[str] | None = None):
         choices=["gif", "mp4"],
         help=(
             "If --write-video is specified, what video format should the files be? "
-            "Should we write the output animations as a gif or mp4?"
+            "Should we write the output animations as a gif or mp4? "
+            "Default: mp4, requires ffmpeg. GIF has no additional dependencies."
         )
     )
 
@@ -254,16 +259,6 @@ def main(prog: str | None = None, argv: list[str] | None = None):
             "E.g. framestep=50 (default) means 20 images will be displayed per second."
         ),
         default=50
-    )
-
-    parser.add_argument(
-        "--normalise",
-        type=str,
-        choices=["uniform", "nonuniform"],
-        help=(
-            "Normalise the image background colour before leaf analysis."
-        ),
-        default=None
     )
 
     parser.add_argument(
@@ -296,7 +291,6 @@ def process_image(
     path: str,
     layout: str,
     leaf_mask_type: Literal["threshold", "otsu", "watershed", "original", "none"],
-    normalise: Literal["uniform", "nonuniform"] | None,
     write_video: str | None,
     tmpdir: str,
 ):
@@ -313,11 +307,6 @@ def process_image(
         time=i,
         leaf_mask_type=leaf_mask_type
     )
-
-    if normalise == "uniform":
-        p = p.correct_uniform()
-    elif normalise == "nonuniform":
-        p = p.correct_nonuniform()
 
     for leaf in p:
         img_original = leaf.img_original
@@ -367,7 +356,6 @@ def infest(
     layout: str,
     outfile: str,
     leaf_mask_type: Literal["threshold", "otsu", "watershed", "original", "none"],
-    normalise: Literal["uniform", "nonuniform"] | None = None,
     write_video: str | None = None,
     video_filetype: Literal["gif", "mp4"] = "gif",
     ncpu: int = 1,
@@ -390,7 +378,6 @@ def infest(
                     process_image,
                     layout=layout,
                     leaf_mask_type=leaf_mask_type,
-                    normalise=normalise,
                     write_video=write_video,
                     tmpdir=tmpdir
                 ),

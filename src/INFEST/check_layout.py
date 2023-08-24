@@ -31,7 +31,7 @@ def main(prog: str | None = None, argv: list[str] | None = None):
     parser.add_argument(
         "images",
         nargs="+",
-        help="The path to the image you want to overlay the layout onto."
+        help="The path(s) to the image(s) you want to overlay the layout onto."
     )
     parser.add_argument(
         "-a", "--animate",
@@ -58,7 +58,7 @@ def main(prog: str | None = None, argv: list[str] | None = None):
     parser.add_argument(
         "-d", "--dpi",
         type=int,
-        help="What resolution should the image have? Default: 150",
+        help="What resolution should the output image(s) or animation have? Default: 150",
         default=150,
     )
     parser.add_argument(
