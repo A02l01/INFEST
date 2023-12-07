@@ -51,7 +51,7 @@ def watershed_mask(
         else:
             raise e
 
-    markers = np.zeros_like(elevation_map)
+    markers = np.zeros_like(elevation_map, dtype=int)
     markers[gr < thresholds[0]] = 1
     markers[gr > thresholds[1]] = 2
 
